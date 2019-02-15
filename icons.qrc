@@ -1,0 +1,28 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>ibook.png</file>
+    <file>iprune.png</file>
+    <file>iflatten.png</file>
+    <file>ifilesaveas.png</file>
+    <file>ihelp.png</file>
+    <file>i2rightarrow.png</file>
+    <file>iremove.png</file>
+    <file>iaddsiblingnode.png</file>
+    <file>iaddsubnode.png</file>
+    <file>ianode.png</file>
+    <file>iback.png</file>
+    <file>icollapseall.png</file>
+    <file>ideletenode.png</file>
+    <file>idnode.png</file>
+    <file>ieditdelete.png</file>
+    <file>ieditadd.png</file>
+    <file>ienode.png</file>
+    <file>iexpandall.png</file>
+    <file>ifileopen.png</file>
+    <file>ifilesave.png</file>
+    <file>iforward.png</file>
+    <file>imanode.png</file>
+    <file>inode.png</file>
+    <file>isnode.png</file>
+  </qresource>
+</RCC>
