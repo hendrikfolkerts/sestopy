@@ -11,18 +11,17 @@ The software is written in Python3 with PyQt5 as user interface.
 
 EXECUTE
 
-The program can be executed from source by the command:
-python main.py      in Windows or
-python3 main.py     in Linux
-Versions built for Windows or Linux have an executable with the name
-SESToPy
+The program can be executed from source. Python3 needs to be installed and the
+program can be started with the command:
+- in Windows: python main.py
+- in Linux: python3 main.py
+Versions built for Windows or Linux have an executable with the name "SESToPy"
 in the program directory.
 
 CHANGELOG
-
-added: couplings, pruning, flattening
-reading a tree from file now with uid
-uniformity now results to nodes with different uid
+- added: couplings, pruning, flattening
+- reading a tree from file now with uid
+- uniformity now results to nodes with different uid
 
 ToDo, Known Bugs, Notes
 - couplings: node renamed -> change in couplings
@@ -40,8 +39,3 @@ Folkerts, H., Pawletta, T., Deatcu, C., and Hartmann, S. (2019). A Python Framew
 Model Specification and Automatic Model Generation for Multiple Simulators. In: Proc. of
 ASIM Workshop 2019 - ARGESIM Report 57, ASIM Mitteilung AM 170. ARGESIM/ASIM Pub.
 TU Vienna, Austria, 02/2019, 69-75. (Print ISBN 978-3-901608-06-3)
-
-Deatcu, C., Folkerts, H., Pawletta, T., Durak, U. (2018). Design Pattern For Variability
-Modeling Using SES Ontology. SpringSim-Mod4Sim 2018, April 15-18, Baltimore, MD, USA,
-Society for Modeling & Simulation International (SCS), 528-539.
-(DOI: 10.22360/SpringSim.2018.Mod4Sim.004) 

@@ -440,13 +440,27 @@ class Aspectrule:
                 dataline = dataline.replace('False', '0==1')
                 dataline = dataline.replace('True', '1==1')
                 #now find the Python commands and split the string
-                keywordlistforre = ' | '.join(keyword.kwlist) + " |==|!=|<=|>=|<|>"
-                separators = re.findall(keywordlistforre, dataline)
+                keywordlistforre = ' |'.join(keyword.kwlist) + " |==|!=|<=|>=|<|>"
+                #separators = re.findall(keywordlistforre, dataline)
                 expressions = re.split(keywordlistforre, dataline)
-                #strip every item
-                for e in range(len(expressions)):
-                    expressions[e] = expressions[e].strip()
 
+                #strip every item and remove if empty
+                #s = len(separators)-1
+                #while s >= 0:
+                    #separators[s] = separators[s].strip()
+                    #remove if empty
+                    #if separators[s] == "":
+                        #del separators[s]
+                    #s -= 1
+                e = len(expressions)-1
+                while e >= 0:
+                    expressions[e] = expressions[e].strip()
+                    #remove if empty
+                    if expressions[e] == "":
+                        del expressions[e]
+                    e -= 1
+
+                expressionvarfunval = []
                 for k in range(len(expressions)):
 
                     # check if the expression is an SES variable or function
@@ -460,7 +474,8 @@ class Aspectrule:
                             # replace the name with the value
                             if isinstance(ret, str):
                                 ret = '"' + ret + '"'
-                            expressions[k] = ret
+                            #expressions[k] = ret
+                            expressionvarfunval.append([expressions[k], ret])
                         except:
                             pass
 
@@ -534,7 +549,8 @@ class Aspectrule:
                                             try:
                                                 exec(execute)
                                                 # replace the entry with the result
-                                                expressions[k] = self.ret
+                                                #expressions[k] = self.ret
+                                                expressionvarfunval.append([expressions[k], self.ret])
                                             except:
                                                 pass
                                     except:
@@ -565,24 +581,28 @@ class Aspectrule:
                         expressions[s] = expressions[s+1][0] + expressions[s] + expressions[s+1][0]
                 """
 
-                # rebuild the complete expression now with the inserted data
-                n = 0
-                completeline = []
-                while n < len(expressions):
-                    completeline.append(str(expressions[n]))
-                    if n < len(separators):
-                        completeline.append(separators[n])
-                    n += 1
-                data = ' '.join(completeline)
+                # rebuild the complete expression now with the inserted data (expression and separator in turn) -> not needed anymore, now only the expressions are replaced (see below)
+                #n = 0
+                #completeline = []
+                #while n < len(expressions):
+                    #completeline.append(str(expressions[n]))
+                    #if n < len(separators):
+                        #completeline.append(separators[n])
+                    #n += 1
+                #dataline = ' '.join(completeline)
+
+                #replace the evaluated SESvar / SESfuns expressions
+                for evfv in expressionvarfunval:
+                    dataline = re.sub(r"\b"+re.escape(evfv[0])+r"\b", str(evfv[1]), dataline)
 
                 # check if the whole expression can be interpreted now containing no more SES variables and functions
                 empty = False
                 ret = False
                 calculable = True
-                if data == "":
+                if dataline == "":
                     empty = True
                 try:
-                    ret = eval(data)
+                    ret = eval(dataline)
                 except:
                     calculable = False
 
