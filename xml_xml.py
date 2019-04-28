@@ -6,6 +6,62 @@ import re
 from xml.etree import ElementTree
 from xml.dom import minidom
 
+#XML for the tree view program
+def toXMLView (nodelist, sespes, sesvarlist, semconlist, selconlist, sesfunlist):
+    root = Element('SES_with_settings', {'name': 'SES'})
+    uidElementDict = {}  # a dictionary holding the node uid and the corresponding element
+    uidElementDict.update({'0': root})
+
+    #the global settings
+    SubElement(root, 'sespes', {'value': sespes[0], 'comment': sespes[1]})
+    sesvargroup = SubElement(root, 'sesvars')
+    for sesvar in sesvarlist:
+        SubElement(sesvargroup, 'sesvar', {'name': sesvar[0], 'value': sesvar[1], 'comment': sesvar[2]})
+    semcongroup = SubElement(root, 'semcons')
+    for semcon in semconlist:
+        SubElement(semcongroup, 'semcon', {'value': semcon[0], 'result': semcon[1]})
+    selcongroup = SubElement(root, 'selcons')
+    for selcon in selconlist:
+        SubElement(selcongroup, 'selcon', {'startnode': selcon[0], 'stopnode': selcon[2], 'color': selcon[4], 'comment': selcon[5]})
+    sesfcngroup = SubElement(root, 'sesfuns')
+    for sesfun in sesfunlist:
+        SubElement(sesfcngroup, 'sesfcn', {'fcnname': sesfun[0],'fcn': sesfun[1]})
+
+    #the tree with nodes
+    for node in nodelist:
+        if node[1] == "Entity Node":
+            parentElement = uidElementDict.get(node[3])
+            childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'entity'})
+            for attr in node[6]:
+                SubElement(childElement, 'attr', {'name': attr[0], 'value': attr[1], 'varfun': attr[2], 'comment': attr[3]})
+            uidElementDict.update({node[0]: childElement})
+        elif node[1] == "Aspect Node" or node[1] == "Maspect Node":
+            parentElement = uidElementDict.get(node[3])
+            if node[1] == "Aspect Node":
+                childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'aspect'})
+            else:   #it must be a maspect
+                childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'maspect'})
+            for aspr in node[7]:
+                SubElement(childElement, 'aspr', {'condition': aspr[2], 'result': aspr[3], 'comment': aspr[4]})
+            SubElement(childElement, 'prio', {'value': node[11]})
+            for cplg in node[8]:
+                SubElement(childElement, 'cplg', {'sourcenode': cplg[0], 'sourceport': cplg[2], 'sinknode': cplg[3], 'sinkport': cplg[5], 'cplgfcn': cplg[6], 'comment': cplg[7]})
+            if node[1] == "Maspect Node":
+                SubElement(childElement, 'numr', {'value': node[9]})
+            uidElementDict.update({node[0]: childElement})
+        elif node[1] == "Spec Node":
+            parentElement = uidElementDict.get(node[3])
+            childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'specialization'})
+            for specr in node[10]:
+                SubElement(childElement, 'specr', {'condition': specr[2], 'result': specr[3], 'comment': specr[4]})
+            uidElementDict.update({node[0]: childElement})
+    rough_string = ElementTree.tostring(root, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    return reparsed.toprettyxml(indent="")
+
+
+
+
 def toXML(nodelist, sespes, sesvarlist, semconlist, selconlist, sesfunlist):
     def addAttributes(parent, node):
         for attr in node[6]:
