@@ -7,9 +7,15 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
-class SesPes:
+class SesPes(QtCore.QObject):
+
+    sespesChangedSignal = pyqtSignal()
 
     def __init__(self, main, tabnumber):
+
+        # since we inherited from QObject, we have to call the super class init
+        super(SesPes, self).__init__()
+
         self.main = main
         self.tabnumber = tabnumber
         self.rbses = None
@@ -24,6 +30,11 @@ class SesPes:
         self.rbipes.setChecked(False)
         self.rbpes.setChecked(False)
         self.rbfpes.setChecked(False)
+        self.rbses.toggled.connect(self.change)
+        self.rbipes.toggled.connect(self.change)
+        self.rbpes.toggled.connect(self.change)
+        self.rbfpes.toggled.connect(self.change)
+        self.tesescomment.textChanged.connect(self.change)
         self.bsespeshelp.clicked.connect(self.help)
 
     def setUiInit(self):
@@ -132,6 +143,10 @@ class SesPes:
             return ['pes', self.tesescomment.toPlainText()]
         if self.rbfpes.isChecked():
             return ['fpes', self.tesescomment.toPlainText()]
+
+    #send the treeChanged signal when there occurs a change
+    def change(self):
+        self.sespesChangedSignal.emit()
 
     """delete -> reset"""
     def deleteSesPes(self):

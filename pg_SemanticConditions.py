@@ -25,8 +25,15 @@ class SemConStandardItemModel(QtGui.QStandardItemModel):
 
         #return super(StandardItemModel, self).data(index, role)
 
-class SemanticConditions:
+class SemanticConditions(QtCore.QObject):
+
+    semconChangedSignal = pyqtSignal()
+
     def __init__(self, main, tabnumber):
+
+        # since we inherited from QObject, we have to call the super class init
+        super(SemanticConditions, self).__init__()
+
         self.main = main
         self.tabnumber = tabnumber
         self.tbgeneralsettings = None
@@ -224,6 +231,7 @@ class SemanticConditions:
             self.lesemanticcondition.setText("")
         self.resz()
         self.validate()
+        self.semconChangedSignal.emit()
 
     """model changed via double click"""
     def changeSemCond(self):
@@ -241,6 +249,7 @@ class SemanticConditions:
                     self.deleteSemCond(self.semcondselectionmodel.currentIndex().row(), True)
             self.resz()
             self.validate()
+            self.semconChangedSignal.emit()
             self.changeOnce = True
 
     """check the value of a semantic condition -> can it be evaluated? Return it afterwards"""
@@ -331,6 +340,7 @@ class SemanticConditions:
         elif rw != -1 and rowsdelete:
             self.semcondmodel.removeRow(rw, QtCore.QModelIndex())
         self.resz()
+        self.semconChangedSignal.emit()
         self.viewHint()
 
     """check the content and evaluate the result, sesvarl is "" and semconl is "" if the validate process was started from the editor"""

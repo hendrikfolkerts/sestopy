@@ -6,63 +6,436 @@ import re
 from xml.etree import ElementTree
 from xml.dom import minidom
 
-#XML for the tree view program
-def toXMLView (nodelist, sespes, sesvarlist, semconlist, selconlist, sesfunlist):
-    root = Element('SES_with_settings', {'name': 'SES'})
+#XML for the tree view program and interchange
+def toXML(nodelist, sespes, sesvarlist, semconlist, selconlist, sesfunlist):
+    root = Element('SESwithSettings', {'name': 'SES', 'xmlns:vc': 'http://www.w3.org/2007/XMLSchema-versioning', 'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance'})
     uidElementDict = {}  # a dictionary holding the node uid and the corresponding element
-    uidElementDict.update({'0': root})
 
     #the global settings
-    SubElement(root, 'sespes', {'value': sespes[0], 'comment': sespes[1]})
-    sesvargroup = SubElement(root, 'sesvars')
+    globalsgroup = SubElement(root, 'globals')
+    SubElement(globalsgroup, 'sespes', {'value': sespes[0], 'comment': sespes[1]})
+    sesvargroup = SubElement(globalsgroup, 'sesvars')
     for sesvar in sesvarlist:
         SubElement(sesvargroup, 'sesvar', {'name': sesvar[0], 'value': sesvar[1], 'comment': sesvar[2]})
-    semcongroup = SubElement(root, 'semcons')
+    semcongroup = SubElement(globalsgroup, 'semcons')
     for semcon in semconlist:
         SubElement(semcongroup, 'semcon', {'value': semcon[0], 'result': semcon[1]})
-    selcongroup = SubElement(root, 'selcons')
+    selcongroup = SubElement(globalsgroup, 'selcons')
     for selcon in selconlist:
         SubElement(selcongroup, 'selcon', {'startnode': selcon[0], 'stopnode': selcon[2], 'color': selcon[4], 'comment': selcon[5]})
-    sesfcngroup = SubElement(root, 'sesfuns')
+    sesfcngroup = SubElement(globalsgroup, 'sesfuns')
     for sesfun in sesfunlist:
-        SubElement(sesfcngroup, 'sesfcn', {'fcnname': sesfun[0],'fcn': sesfun[1]})
+        SubElement(sesfcngroup, 'sesfcn', {'fcnname': sesfun[0],'fcn': sesfun[1],'language':'Python'})
 
     #the tree with nodes
+    treegroup = SubElement(root, 'tree')
+    uidElementDict.update({'0': treegroup})
     for node in nodelist:
         if node[1] == "Entity Node":
             parentElement = uidElementDict.get(node[3])
-            childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'entity'})
+            childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'entity', 'comment': ''})
             for attr in node[6]:
                 SubElement(childElement, 'attr', {'name': attr[0], 'value': attr[1], 'varfun': attr[2], 'comment': attr[3]})
             uidElementDict.update({node[0]: childElement})
         elif node[1] == "Aspect Node" or node[1] == "Maspect Node":
             parentElement = uidElementDict.get(node[3])
             if node[1] == "Aspect Node":
-                childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'aspect'})
+                childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'aspect', 'comment': ''})
             else:   #it must be a maspect
-                childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'maspect'})
+                childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'multiaspect', 'comment': ''})
             for aspr in node[7]:
                 SubElement(childElement, 'aspr', {'condition': aspr[2], 'result': aspr[3], 'comment': aspr[4]})
             SubElement(childElement, 'prio', {'value': node[11]})
             for cplg in node[8]:
-                SubElement(childElement, 'cplg', {'sourcenode': cplg[0], 'sourceport': cplg[2], 'sinknode': cplg[3], 'sinkport': cplg[5], 'cplgfcn': cplg[6], 'comment': cplg[7]})
+                cplsplit = cplg[2].split(" / ")
+                sop = cplsplit[0].strip()
+                if len(cplsplit) > 1:
+                    sot = cplsplit[1].strip()
+                cplsplit = cplg[5].split(" / ")
+                sip = cplsplit[0].strip()
+                if len(cplsplit) > 1:
+                    sit = cplsplit[1].strip()
+                if sop != "" and sot != "" and sip != "" and sit != "":
+                    SubElement(childElement, 'cplg', {'sourcenode': cplg[0], 'sourceport': sop, 'sourcetype': sot, 'sinknode': cplg[3], 'sinkport': sip, 'sinktype': sit, 'cplgfcn': cplg[6], 'comment': cplg[7]})
+                else:
+                    SubElement(childElement, 'cplg', {'sourcenode': cplg[0], 'sourceport': '', 'sourcetype': '', 'sinknode': cplg[3], 'sinkport': '', 'sinktype': '', 'cplgfcn': cplg[6], 'comment': cplg[7]})
             if node[1] == "Maspect Node":
                 SubElement(childElement, 'numr', {'value': node[9]})
             uidElementDict.update({node[0]: childElement})
         elif node[1] == "Spec Node":
             parentElement = uidElementDict.get(node[3])
-            childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'specialization'})
+            childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'specialization', 'comment': ''})
             for specr in node[10]:
-                SubElement(childElement, 'specr', {'condition': specr[2], 'result': specr[3], 'comment': specr[4]})
+                SubElement(childElement, 'specr', {'fornode': specr[0], 'condition': specr[2], 'result': specr[3], 'comment': specr[4]})
+            uidElementDict.update({node[0]: childElement})
+        elif node[1] == "Descriptive Node":
+            parentElement = uidElementDict.get(node[3])
+            childElement = SubElement(parentElement, 'node', {'name': node[2], 'type': 'descriptive'})
             uidElementDict.update({node[0]: childElement})
     rough_string = ElementTree.tostring(root, 'utf-8')
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="")
 
+#read an XML file
+def fromXML(xmlstr):
+
+    def addEntity(nodelist, uid, depth, parentuid, name, childlayer):
+        attriblist = []
+        for ch in childlayer:  # on one layer deeper than the current node (the children of the current layer) are the node specific attributes (if the node has node specific attributes at all)
+            if ch.tag == "attr":
+                nm = ch.attrib['name']
+                vl = ch.attrib['value']
+                vf = ch.attrib['varfun']
+                cm = ch.attrib['comment']
+                attriblist.append([nm, vl, vf, cm])
+        nodelist.append([str(uid), "Entity Node", name, str(parentuid), "#000000", 'False', attriblist, [], [], '1', [], '1', str(depth)])
+        return nodelist
+
+    def addAspect(nodelist, uid, depth, parentuid, name, childlayer):
+        asprulelist = []
+        priority = "1"
+        couplinglist = []
+        for ch in childlayer:  # on one layer deeper than the current node (the children of the current layer) are the node specific attributes (if the node has node specific attributes at all)
+            if ch.tag == "aspr":
+                cd = ch.attrib['condition']
+                rs = ch.attrib['result']
+                cm = ch.attrib['comment']
+                asprulelist.append([name, uid, cd, rs, cm])
+            if ch.tag == "prio":
+                priority = ch.attrib['value']
+            if ch.tag == "cplg":
+                son = ch.attrib['sourcenode']
+                sop = ch.attrib['sourceport']
+                sot = ch.attrib['sourcetype']
+                sin = ch.attrib['sinknode']
+                sip = ch.attrib['sinkport']
+                sit = ch.attrib['sinktype']
+                fcn = ch.attrib['cplgfcn']
+                com = ch.attrib['comment']
+                if son != "" and sin != "":
+                    couplinglist.append([son, "sourcenodeuid", sop + " / " + sot, sin, "sinknodeuid", sip + " / " + sit, "", com])
+                else:
+                    couplinglist.append(["", "", "", "", "", "", fcn, ""])
+        nodelist.append([str(uid), "Aspect Node", name, str(parentuid), "#000000", 'False', [], asprulelist, couplinglist, '1', [], priority, str(depth)])
+        return nodelist
+
+    def addSpec(nodelist, uid, depth, parentuid, name, childlayer):
+        specrulelist = []
+        for ch in childlayer:  # on one layer deeper than the current node (the children of the current layer) are the node specific attributes (if the node has node specific attributes at all)
+            if ch.tag == "specr":
+                fn = ch.attrib['fornode']
+                cd = ch.attrib['condition']
+                rs = ch.attrib['result']
+                cm = ch.attrib['comment']
+                specrulelist.append([fn, "specrulenodeuid", cd, rs, cm])
+        nodelist.append([str(uid), "Spec Node", name, str(parentuid), "#000000", 'False', [], [], [], '1', specrulelist, '1', str(depth)])
+        return nodelist
+
+    def addMaspect(nodelist, uid, depth, parentuid, name, childlayer):
+        asprulelist = []
+        priority = "1"
+        numrep = "1"
+        couplinglist = []
+        for ch in childlayer:  # on one layer deeper than the current node (the children of the current layer) are the node specific attributes (if the node has node specific attributes at all)
+            if ch.tag == "aspr":
+                cd = ch.attrib['condition']
+                rs = ch.attrib['result']
+                cm = ch.attrib['comment']
+                asprulelist.append([name, uid, cd, rs, cm])
+            if ch.tag == "prio":
+                priority = ch.attrib['value']
+            if ch.tag == "numr":
+                numrep = ch.attrib['value']
+            if ch.tag == "cplg":
+                son = ch.attrib['sourcenode']
+                sop = ch.attrib['sourceport']
+                sot = ch.attrib['sourcetype']
+                sin = ch.attrib['sinknode']
+                sip = ch.attrib['sinkport']
+                sit = ch.attrib['sinktype']
+                fcn = ch.attrib['cplgfcn']
+                com = ch.attrib['comment']
+                if son != "" and sin != "":
+                    couplinglist.append([son, "sourcenodeuid", sop + " / " + sot, sin, "sinknodeuid", sip + " / " + sit, "", com])
+                else:
+                    couplinglist.append(["", "", "", "", "", "", fcn, ""])
+        nodelist.append([str(uid), "Maspect Node", name, str(parentuid), "#000000", 'False', [], asprulelist, couplinglist, numrep, [], priority, str(depth)])
+        return nodelist
+
+    def addDescriptive(nodelist, uid, depth, parentuid, name):
+        nodelist.append([str(uid), "Descriptive Node", name, str(parentuid), "#000000", 'False', [], [], [], '1', [], '1', str(depth)])
+        return nodelist
+
+    #beginning of the function
+    sespeslist = []
+    sesvarlist = []
+    semconlist = []
+    selconlist = []
+    sesfunlist = []
+    nodelist=[]
+    uid = 1
+    depth = 0
+    #get the tree
+    root = ET.fromstring(xmlstr)
+    parentChildIndexDict = {c: p for p in root.iter() for c in p}     #parentindex-childindex dictionary of the tree -> for every index the parent can be found
+    indexUidDict = {}  #a dictionary where to every index of the ElementTree the uid is placed -> index: uid
+    uidIndexDict = {}   #a dictionary where to every uid the index of the ElementTree is placed -> uid: index
+    parentChildrenUidsDict = {}     #for every parentuid the children's uids can be found -> {parentuid: [[childuid, childname], [childuid, childname], ...} -> specrules and couplings
+    childParentUidsDict = {}        #for every childuid the parent's uid can be found -> childuid: [parentuid, parentname] -> couplings
+
+    #get the children of root
+    for chi in root:    #a child of root can also be accessed by root[0], root[1] etc.
+
+        if chi.tag == "globals":
+            for ch in chi:
+
+                if ch.tag == "sespes":
+                    vl = ch.attrib['value']
+                    cm = ch.attrib['comment']
+                    sespeslist.append([vl, cm])
+                if ch.tag == "sesvars":
+                    for chil in ch:
+                        if chil.tag == "sesvar":
+                            nm = chil.attrib['name']
+                            vl = chil.attrib['value']
+                            cm = chil.attrib['comment']
+                            sesvarlist.append([nm, vl, cm])
+                if ch.tag == "semcons":
+                    for chil in ch:
+                        if chil.tag == "semcon":
+                            vl = chil.attrib['value']
+                            rs = chil.attrib['result']
+                            semconlist.append([vl, rs])
+                if ch.tag == "selcons":
+                    for chil in ch:
+                        if chil.tag == "selcon":
+                            san = chil.attrib['startnode']
+                            son = chil.attrib['stopnode']
+                            col = chil.attrib['color']
+                            com = chil.attrib['comment']
+                            selconlist.append([san, "startnodeuid", son, "stopnodeuid", col, com])
+                if ch.tag == "sesfuns":
+                    try:
+                        chil = ch[0]    #no need to go through all tags sesfcn with a for loop -> all functions are found with the regex in re.findall(...)
+                        if chil.tag == "sesfcn":
+                            #fn = chil.attrib['fcnname']
+                            #fc = chil.attrib['fcn']
+                            #sesfunlist.append([fn, fc])
+
+                            # since cr lf is not recognized -> regular expression
+                            ffun = re.findall('<sesfcn fcn=\".*\" fcnname=\".*\" language="Python"/>', xmlstr, re.DOTALL)
+                            if len(ffun) > 0:
+                                f = ffun[0].split("<sesfcn fcn=")
+                                del f[0]
+                                for fx in f:
+                                    fp = fx.split('language="Python"')
+                                    del fp[1]
+                                    ffn = fp[0].split('fcnname=')
+                                    for x in range(len(ffn)):
+                                        ffn[x] = ffn[x].strip()
+                                        ffn[x] = ffn[x][1:-1]
+                                    #extract the name and the function itself
+                                    nm = ffn[1]
+                                    fu = ffn[0]
+                                    # replace the special characters
+                                    fu = fu.replace("&quot;", '"')
+                                    fu = fu.replace("&apos;", "'")
+                                    fu = fu.replace("&lt;", "<")
+                                    fu = fu.replace("&gt;", ">")
+                                    fu = fu.replace("&amp;", "&")
+                                    sesfunlist.append([nm, fu])
+                    except:
+                        pass
+
+        if chi.tag == "tree":
+
+            treeLayer = chi
+
+            #pre-order traversal
+            nodeStack = []
+            #l = len(treeLayer)
+            nodeStack.append([treeLayer[0], depth])  #append root
+            #a = treeLayer[0].attrib['name']
+            #t = treeLayer[0].tag
+
+            while len(nodeStack) > 0:
+
+                curEl = nodeStack.pop()
+                ch = curEl[0]
+                depth = curEl[1]
+                """
+                try:
+                    a = ch.attrib['name']
+                except:
+                    t = ch.tag
+                """
+
+                if ch.tag == "node" and ch.attrib['type'] == "entity":
+                    name = ch.attrib['name']
+                    if not nodelist:    #the root node of the tree
+                        parentUid = 0   #for the first node in the tree the parentuid is 0
+                    else:
+                        parentUid = indexUidDict.get(parentChildIndexDict.get(ch))  #get the parentUid of the ch
+                    nodelist = addEntity(nodelist, uid, depth, parentUid, name, ch)    #add entry
+                    # update the index - uid dictionaries
+                    indexUidDict.update({ch: uid})  # place the ch index with the given uid in the dictionary
+                    uidIndexDict.update({uid: ch})  # place the uid with the ch index in the dictionary
+                    # update the parent - children dictionary (one parent can have several children)
+                    puid = parentChildrenUidsDict.get(str(parentUid))
+                    if not puid:
+                        parentChildrenUidsDict.update({str(parentUid): [[str(uid), name]]})
+                    else:
+                        puid.append([str(uid), name])
+                        parentChildrenUidsDict.update({str(parentUid): puid})
+                    # update the child - parent dictionary (one child can only have one parent)
+                    if parentUid == 0:
+                        childParentUidsDict.update({str(uid): [str(parentUid), None]})
+                    else:
+                        childParentUidsDict.update({str(uid): [str(parentUid), uidIndexDict.get(parentUid).attrib['name']]})
+                    uid += 1
+
+                if ch.tag == "node" and ch.attrib['type'] == "aspect":
+                    name = ch.attrib['name']
+                    parentUid = indexUidDict.get(parentChildIndexDict.get(ch))     #get the parentUid of the ch
+                    nodelist = addAspect(nodelist, uid, depth, parentUid, name, ch)     #add entry
+                    # update the index - uid dictionaries
+                    indexUidDict.update({ch: uid})  # place the ch index with the given uid in the dictionary
+                    uidIndexDict.update({uid: ch})  # place the uid with the ch index in the dictionary
+                    # update the parent - children dictionary (one parent can have several children)
+                    puid = parentChildrenUidsDict.get(str(parentUid))
+                    if not puid:
+                        parentChildrenUidsDict.update({str(parentUid): [[str(uid), name]]})
+                    else:
+                        puid.append([str(uid), name])
+                        parentChildrenUidsDict.update({str(parentUid): puid})
+                    # update the child - parent dictionary (one child can only have one parent)
+                    childParentUidsDict.update({str(uid): [str(parentUid), uidIndexDict.get(parentUid).attrib['name']]})
+                    uid += 1
+
+                if ch.tag == "node" and ch.attrib['type'] == "specialization":
+                    name = ch.attrib['name']
+                    parentUid = indexUidDict.get(parentChildIndexDict.get(ch))     #get the parentUid of the ch
+                    nodelist = addSpec(nodelist, uid, depth, parentUid, name, ch)       #add entry
+                    # update the index - uid dictionaries
+                    indexUidDict.update({ch: uid})  # place the ch index with the given uid in the dictionary
+                    uidIndexDict.update({uid: ch})  # place the uid with the ch index in the dictionary
+                    # update the parent - children dictionary (one parent can have several children)
+                    puid = parentChildrenUidsDict.get(str(parentUid))
+                    if not puid:
+                        parentChildrenUidsDict.update({str(parentUid): [[str(uid), name]]})
+                    else:
+                        puid.append([str(uid), name])
+                        parentChildrenUidsDict.update({str(parentUid): puid})
+                    # update the child - parent dictionary (one child can only have one parent)
+                    childParentUidsDict.update({str(uid): [str(parentUid), uidIndexDict.get(parentUid).attrib['name']]})
+                    uid += 1
+
+                if ch.tag == "node" and ch.attrib['type'] == "multiaspect":
+                    name = ch.attrib['name']
+                    parentUid = indexUidDict.get(parentChildIndexDict.get(ch))     #get the parentUid of the ch
+                    nodelist = addMaspect(nodelist, uid, depth, parentUid, name, ch)    #add entry
+                    # update the index - uid dictionaries
+                    indexUidDict.update({ch: uid})  # place the ch index with the given uid in the dictionary
+                    uidIndexDict.update({uid: ch})  # place the uid with the ch index in the dictionary
+                    # update the parent - children dictionary (one parent can have several children)
+                    puid = parentChildrenUidsDict.get(str(parentUid))
+                    if not puid:
+                        parentChildrenUidsDict.update({str(parentUid): [[str(uid), name]]})
+                    else:
+                        puid.append([str(uid), name])
+                        parentChildrenUidsDict.update({str(parentUid): puid})
+                    # update the child - parent dictionary (one child can only have one parent)
+                    childParentUidsDict.update({str(uid): [str(parentUid), uidIndexDict.get(parentUid).attrib['name']]})
+                    uid += 1
+
+                if ch.tag == "node" and ch.attrib['type'] == "descriptive":
+                    name = ch.attrib['name']
+                    parentUid = indexUidDict.get(parentChildIndexDict.get(ch))     #get the parentUid of the ch
+                    nodelist = addDescriptive(nodelist, uid, depth, parentUid, name)    #add entry
+                    # update the index - uid dictionaries
+                    indexUidDict.update({ch: uid})  # place the ch index with the given uid in the dictionary
+                    uidIndexDict.update({uid: ch})  # place the uid with the ch index in the dictionary
+                    # update the parent - children dictionary (one parent can have several children)
+                    puid = parentChildrenUidsDict.get(str(parentUid))
+                    if not puid:
+                        parentChildrenUidsDict.update({str(parentUid): [[str(uid), name]]})
+                    else:
+                        puid.append([str(uid), name])
+                        parentChildrenUidsDict.update({str(parentUid): puid})
+                    # update the child - parent dictionary (one child can only have one parent)
+                    childParentUidsDict.update({str(uid): [str(parentUid), uidIndexDict.get(parentUid).attrib['name']]})
+                    uid += 1
+
+                depth += 1
+                numSub = len(ch) - 1
+                while numSub >= 0:
+                    nodeStack.append([ch[numSub], depth])
+                    numSub -= 1
+
+    #set necessary uids in selection constraints -> in selection constraints
+    #set the color and bold properties according to the selection constraints -> in nodelist
+    #set necessary uids in specrules -> in nodelist
+    #set necessary uids in couplings -> in nodelist
+    for nd in range(len(nodelist)):
+
+        for slc in selconlist:
+            #startnode
+            if nodelist[nd][2] == slc[0]:   #if the name fits
+                #set the uid in the selection constraint
+                slc[1] = nodelist[nd][0]
+                #set the color and bold property in the node
+                nodelist[nd][4] = slc[4]
+                nodelist[nd][5] = "True"
+            #stopnode(s)
+            sns = slc[2].split(", ")
+            if nodelist[nd][2] in sns:  #if the name fits
+                #set the uid in the selection constraint
+                uids = slc[3].split(", ")
+                if uids[0] == "stopnodeuid":  # remove existing entry "stopnodeuid"
+                    del uids[0]
+                uids.append(nodelist[nd][0])
+                uids = ', '.join(uids)
+                slc[3] = uids
+                #set the color in the node
+                nodelist[nd][4] = slc[4]
+
+        if nodelist[nd][1] == "Spec Node":
+            children = parentChildrenUidsDict.get(nodelist[nd][0])
+            for sr in nodelist[nd][10]:
+                for ch in children:
+                    if sr[0] == ch[1]: #the name fits
+                        sr[1] = ch[0]
+
+        if nodelist[nd][1] in ["Aspect Node", "Maspect Node"]:
+            children = parentChildrenUidsDict.get(nodelist[nd][0])
+            parent = childParentUidsDict.get(nodelist[nd][0])
+            for cp in nodelist[nd][8]:
+                #check if one coupling refers to a child
+                for ch in children:
+                    if cp[0] == ch[1]: #the name fits
+                        cp[1] = ch[0]
+                    if cp[3] == ch[1]: #the name fits
+                        cp[4] = ch[0]
+                #now check if one coupling refers to the parent
+                if cp[0] == parent[1]: #the name fits
+                    cp[1] = parent[0]
+                if cp[3] == parent[1]: #the name fits
+                    cp[4] = parent[0]
+
+    return (True, nodelist, sespeslist, sesvarlist, semconlist, selconlist, sesfunlist)
 
 
 
-def toXML(nodelist, sespes, sesvarlist, semconlist, selconlist, sesfunlist):
+#defined for interchange with SES editor developed at Deutsches Zentrum fuer Luft- und Raumfahrt
+# -> currently not used
+#An upper limit and a lower limit for the value can be specified in the commentfield of an attribute. This can be done for example
+# by setting upper=<value> and lower=<value> in the text. Please be aware, that this is only for information in this
+# editor, because limits are usually set by defining selection constraints for an SES variable. However, when
+# exporting the SES as XML, these values are set to the attribute.
+#Examples for the comment:
+# This is a comment. The limits vor this variable are upper=55.0 and lower=25.0.
+# This is another comment specifying the limits upper=55 and lower=25.
+def toXML_DLR(nodelist, sespes, sesvarlist, semconlist, selconlist, sesfunlist):
     def addAttributes(parent, node):
         for attr in node[6]:
             try:
@@ -131,7 +504,10 @@ def toXML(nodelist, sespes, sesvarlist, semconlist, selconlist, sesfunlist):
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="")
 
-def fromXML(xmlstr):
+#defined for interchange with SES editor developed at Deutsches Zentrum fuer Luft- und Raumfahrt
+# -> currently not used
+# upper limits and lower limits specified in the XML are set in the commentfield (see function toXML_DLR)
+def fromXML_DLR(xmlstr):
     def addEntity(nodelist, uidNodelistindexDict, uid, depth, parentuid, name, layer):
         attriblist = []
         for ch in layer:  # one layer deeper than the current node (the children of the current layer) are attributes (if the node has attributes at all)
@@ -215,7 +591,7 @@ def fromXML(xmlstr):
             if chi.tag == "specialization":
                 name = chi.attrib['name']
                 parentUid = indexUidDict.get(parentChildIndexDict.get(chi))     #get the parentUid of the chi
-                nodelist, uidNodelistindexDict = addSpec(nodelist,uidNodelistindexDict,  uid, depth, parentUid, name)       #add entry
+                nodelist, uidNodelistindexDict = addSpec(nodelist, uidNodelistindexDict, uid, depth, parentUid, name)       #add entry
                 indexUidDict.update({chi: uid}) #place the chi index with the given uid in the dictionary
                 uid += 1
 

@@ -5,7 +5,7 @@ __author__ = 'Hendrik Folkerts'
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtCore import QItemSelectionModel, Qt
+from PyQt5.QtCore import *#QItemSelectionModel, Qt
 
 #redefine functions from QStandarditemmodel
 class SelectionConstraintsStandardItemModel(QtGui.QStandardItemModel):
@@ -19,8 +19,15 @@ class SelectionConstraintsStandardItemModel(QtGui.QStandardItemModel):
         else:
             return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
 
-class SelectionConstraints:
+class SelectionConstraints(QtCore.QObject):
+
+    selconChangedSignal = pyqtSignal()
+
     def __init__(self, main, tabnumber):
+
+        # since we inherited from QObject, we have to call the super class init
+        super(SelectionConstraints, self).__init__()
+
         self.main = main
         self.tabnumber = tabnumber
         self.tvselectionconstraintsview = None
@@ -508,6 +515,7 @@ class SelectionConstraints:
                 QMessageBox.information(None, "Inserting not possible", "The selection constraint exists already.", QtWidgets.QMessageBox.Ok)
                 self.clearStartStopNode()
         self.resz()
+        self.selconChangedSignal.emit()
 
     """create a string with the uids of the stopnode from the uidlist"""
     def createStopnodeUidString(self):
@@ -638,6 +646,7 @@ class SelectionConstraints:
         self.resz()
         #setting the color of the nodes
         self.colorNodesInTreeModel()
+        self.selconChangedSignal.emit()
 
     """setting the defined colors in the tree model"""
     def colorNodesInTreeModel(self):
@@ -648,6 +657,8 @@ class SelectionConstraints:
             #reset bold font at first
             self.treeManipulate.treeModel.setData(ind[0], False, QtCore.Qt.FontRole)
         for row in range(self.selconsmodel.rowCount()):
+            #uids used -> but all nodes with the same name should be colored (not with the same uid, because nodes with the same name have different uids)
+            """
             inda = self.selconsmodel.item(row, 1).data(QtCore.Qt.DisplayRole)
             indo = self.selconsmodel.item(row, 3).data(QtCore.Qt.DisplayRole)
             indc = self.selconsmodel.item(row, 4).data(QtCore.Qt.DisplayRole)
@@ -656,6 +667,19 @@ class SelectionConstraints:
             indo = list(map(int, indo))
             for ind in allInd:
                 nd = self.treeManipulate.treeModel.getNode(ind[0]).getUid()
+                if nd == inda:
+                    self.treeManipulate.treeModel.setData(ind[0], True, QtCore.Qt.FontRole)
+                if nd == inda or nd in indo:
+                    self.treeManipulate.treeModel.setData(ind[0], indc, QtCore.Qt.TextColorRole)
+            """
+            #instead names are used
+            inda = self.selconsmodel.item(row, 0).data(QtCore.Qt.DisplayRole)
+            indo = self.selconsmodel.item(row, 2).data(QtCore.Qt.DisplayRole)
+            indc = self.selconsmodel.item(row, 4).data(QtCore.Qt.DisplayRole)
+            indo = indo.split(", ")
+            indo = [indoo.strip() for indoo in indo]
+            for ind in allInd:
+                nd = self.treeManipulate.treeModel.getNode(ind[0]).name()
                 if nd == inda:
                     self.treeManipulate.treeModel.setData(ind[0], True, QtCore.Qt.FontRole)
                 if nd == inda or nd in indo:

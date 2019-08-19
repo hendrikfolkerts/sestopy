@@ -22,6 +22,110 @@ class CouplingStandardItemModel(QtGui.QStandardItemModel):
         else:
             return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
 
+class CouplingDelegate(QtWidgets.QItemDelegate):
+    def __init__(self, parent):
+        QtWidgets.QItemDelegate.__init__(self, parent)
+
+    #createEditor method is called automatically, when the cell shall be edited
+    def createEditor(self, parent, option, index):
+        #the cell only gets a comboBox when it is edited
+        #combo = QtWidgets.QComboBox(parent)
+        #combo.addItems(["SignalPortReal", "SignalPortInt", "SignalPortBool", "PhysicalPort"])
+        #return combo
+
+        #the cell gets a widget of the class PortTypeWidget when it is edited
+        tw = QtWidgets.QTableWidget(1, 1, parent)
+        tw.horizontalHeader().hide()
+        tw.verticalHeader().hide()
+        tw.setCellWidget(0, 0, PortTypeWidget())
+        return tw
+
+    #setEditorData method is called automatically by the view, when an editor is initialized and when model data has been changed
+    def setEditorData(self, editor, index):
+        #editor.blockSignals(True)
+        #editor.setCurrentIndex(int(index.model().data(index)))
+        #editor.blockSignals(False)
+
+        # get the widgets (which were created for the editor)
+        ptw = editor.cellWidget(0, 0)
+        hbox = ptw.layout()
+        linee = hbox.itemAt(0).widget()  # the lineEdit with maybe chaged text
+        combo = hbox.itemAt(1).widget()  # thecomboBox with maybe changed content
+        # get the current data
+        portandtype = index.data()
+        # portandtype is None when the coupling port field has been left
+        if portandtype:
+            ptsplit = portandtype.split(" / ")
+            try:
+                #now set the content
+                if len(ptsplit) == 2:
+                    linee.setText(ptsplit[0])
+                    #set the porttype to the right index
+                    ptfound = False
+                    porttypes = ["SPR", "SPI", "SPB", "PP"]
+                    for n in range(len(porttypes)):
+                        if porttypes[n] == ptsplit[1]:
+                            combo.setCurrentIndex(n)
+                            ptfound = True
+                    if not ptfound:
+                        combo.setCurrentIndex(0)
+                else:   #maybe only a portname is given, but no porttype
+                    linee.setText(ptsplit[0])
+                    #set the porttype to the first in the list
+                    combo.setCurrentIndex(0)
+            except: #in case an error occurs -> set the porttype to the first in the list
+                linee.setText(ptsplit[0])
+                # set the porttype to the first in the list
+                combo.setCurrentIndex(0)
+        else:   #portandtype is None -> after leaving the coupling port field -> own function for that now (see next function)
+            #portname = linee.text()
+            #porttype = combo.currentIndex()
+            #portnametype = portname + " / " + str(porttype)
+            #currentRow = index.row()
+            #currentColumn = index.column()
+            pass
+
+    #setModelData method is called automatically by the view, when the editor is left -> update the model after change
+    def setModelData(self, editor, model, index):
+        # model.setData(index, editor.itemText(editor.currentIndex()))
+
+        # get the widgets (which were created for the editor)
+        ptw = editor.cellWidget(0, 0)
+        hbox = ptw.layout()
+        linee = hbox.itemAt(0).widget()  # the lineEdit with maybe chaged text
+        combo = hbox.itemAt(1).widget()  # thecomboBox with maybe changed content
+        portname = linee.text()
+        #porttypeComboNum = combo.currentIndex()    #number of the selected index in the comboBox
+        porttype = combo.currentText()
+        portnametype = portname + " / " + porttype
+        model.setData(index, portnametype)
+
+        #if the sourceporttype is changed, change the sinkporttype as well
+        if index.column() == 2: #change in sourport -> column 2
+            currentRow = index.row()
+            newindex = model.index(currentRow, 5)   #the column for the sinkport is 5
+            sinkportData = newindex.data()
+            sinkportname = sinkportData.split(" / ")[0]
+            newportnametype = sinkportname + " / " + porttype
+            model.setData(newindex, newportnametype)
+
+class PortTypeWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(PortTypeWidget, self).__init__(parent)
+        #layout
+        layout = QtWidgets.QHBoxLayout()
+        #adjust spacings
+        layout.setContentsMargins(0,0,0,0)
+        layout.setSpacing(0)
+        #add elements
+        linee = QtWidgets.QLineEdit()
+        combo = QtWidgets.QComboBox()
+        combo.addItems(["SPR", "SPI", "SPB", "PP"])
+        layout.addWidget(linee)
+        layout.addWidget(combo)
+        #set the layout
+        self.setLayout(layout)
+
 class Coupling:
     def __init__(self, treeManipulate, tabnumber):
         self.treeManipulate = treeManipulate
@@ -40,11 +144,13 @@ class Coupling:
         self.helptext = self.treeManipulate.main.couphelp
         #build empty model for data and the selection
         self.couplingmodel = CouplingStandardItemModel(self.tvcouplingview)
-        self.couplingmodel.setHorizontalHeaderLabels(["source", "uid", "port", "sink", "uid", "port", "comment"])
+        self.couplingmodel.setHorizontalHeaderLabels(["source", "uid", "port name / type", "sink", "uid", "port name / type", "comment"])
         self.couplingselectionmodel = QItemSelectionModel(self.couplingmodel)
         #set model to tableview
         self.tvcouplingview.setModel(self.couplingmodel)
         self.tvcouplingview.setSelectionModel(self.couplingselectionmodel)
+        self.tvcouplingview.setItemDelegateForColumn(2, CouplingDelegate(self.tvcouplingview))
+        self.tvcouplingview.setItemDelegateForColumn(5, CouplingDelegate(self.tvcouplingview))
         #signals
         self.cbcouplingssoname.installEventFilter(self.treeManipulate.main)
         self.cbcouplingssiname.installEventFilter(self.treeManipulate.main)
@@ -495,10 +601,10 @@ class Coupling:
                     for c in appendRows:
                         itemson = QStandardItem(str(c[0]))
                         itemsou = QStandardItem(str(c[1]))
-                        itemsop = QStandardItem(str(c[2]))
+                        itemsop = QStandardItem(str(c[2]) + " / SPR")   #the type is added
                         itemsin = QStandardItem(str(c[3]))
                         itemsiu = QStandardItem(str(c[4]))
-                        itemsip = QStandardItem(str(c[5]))
+                        itemsip = QStandardItem(str(c[5]) + " / SPR")   #the type is added
                         itemcom = QStandardItem("") #empty comment
                         self.couplingmodel.appendRow([itemson, itemsou, itemsop, itemsin, itemsiu, itemsip, itemcom])
                     self.lelistcoupling.setText("")
@@ -516,7 +622,8 @@ class Coupling:
                 if index.column() == 6: #the comment may contain any literal -> so in column 6 allow any literal
                     cpl = re.match('.', coupling)
                 else:
-                    cpl = re.match('\s*?[\'\"]?[\w\s]+[\'\"]?\s*?', coupling)
+                    #cpl = re.match('\s*?[\'\"]?[\w\s]+[\'\"]?\s*?', coupling)      #regex for port without porttype
+                    cpl = re.match('\s*?[\'\"]?[\w\s]+[\'\"]?\s/\s\w+', coupling)   #regex for port with porttype
                 if cpl is not None:
                     cpl = cpl.group()
                     if cpl == coupling and index.column() != 6: #further checks only if it is not the comment field
@@ -580,7 +687,7 @@ class Coupling:
     """empty the model"""
     def emptyCouplingModel(self):
         self.couplingmodel.clear()
-        self.couplingmodel.setHorizontalHeaderLabels(["source", "uid", "port", "sink", "uid", "port", "comment"])
+        self.couplingmodel.setHorizontalHeaderLabels(["source", "uid", "port name / type", "sink", "uid", "port name / type", "comment"])
 
     """help"""
     def help(self):
@@ -820,7 +927,7 @@ class Coupling:
                             except:
                                 pass
 
-            #check that the type is correct: [sourcenodename, sourcenodeport, sinknodename, sinknodeport, comment] and the parent and childrennames are really parents and children
+            #check that the type is correct: ["sourcenodename", "sourcenodeport", "sinknodename", "sinknodeport", "comment"] and the parent and childrennames are really parents and children
             typeOk = []
             parChilOk = []
             allOk = False
@@ -830,7 +937,8 @@ class Coupling:
                     # make to string
                     cplvaluestr = "[\"" + '\", \"'.join(str(e) for e in cplvalue[cplv]) + "\"]"
                     #match regular expression
-                    mat = re.match('\[\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,.*\]', cplvaluestr)
+                    #mat = re.match('\[\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,.*\]', cplvaluestr)  #regex without porttypes
+                    mat = re.match('\[\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"][\w\s-]+\s/\s\w+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"][\w\s-]+\s/\s\w+[\'\"]\s*?,.*\]', cplvaluestr)   #regex with porttypes
                     if mat:
                         typeOk.append(True)
 
@@ -891,7 +999,8 @@ class Coupling:
                         # make to string
                         cplvaluestr = "[\"" + '\", \"'.join(str(e) for e in cplvalue[cplv]) + "\"]"
                         # match regular expression now with the uid information
-                        mat = re.match('\[\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"]\d+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"]\d+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,.*\]', cplvaluestr)
+                        #mat = re.match('\[\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"]\d+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"]\d+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,.*\]', cplvaluestr)  #regex without porttypes
+                        mat = re.match('\[\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"]\d+[\'\"]\s*?,\s*?[\'\"][\w\s-]+\s/\s\w+[\'\"]\s*?,\s*?[\'\"][\w\s-]+[\'\"]\s*?,\s*?[\'\"]\d+[\'\"]\s*?,\s*?[\'\"][\w\s-]+\s/\s\w+[\'\"]\s*?,.*\]', cplvaluestr)   #regex with porttypes
                         if mat:
                             parChilOk.append(True)
                         else:

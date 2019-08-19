@@ -45,10 +45,30 @@ from main_ui_tabfields import *
 from pu_prune import *
 from fn_flatten import *
 
+from client import *
+
 class Main(QtWidgets.QMainWindow):
 
     """initialize"""
     def __init__(self, parent=None):
+        super(Main, self).__init__()
+
+        #connection to a program taking the tree as xml, e.g. a program for the tree view (which serves as server)
+        #execute the client functions in an own thread (needs to be done before the setupUi is called)
+        #create thread object
+        self.clientThread = QThread()
+        self.clientObj = socketClient()
+        #move client object to thread
+        self.clientObj.moveToThread(self.clientThread)
+        #connect client signals to slots in this class
+        self.clientObj.clientConnectionSignal.connect(self.onConnectPressed)    #bind clientConnectionSignal from the clientObj to a slot in this class
+        self.clientObj.clientNoSendSignal.connect(self.onConnectionLost)        #bind clientNoSendSignal from the clientObj to a slot in this class
+        #self.clientObj.clientreturndataSignal.connect(a function = slot in this class)   #data are not shown anywhere yet
+        #connect thread started signal to a slot -> execute when the thread is started
+        self.clientThread.started.connect(self.clientObj.clientSend)   #start the clientSend function in the clientObj -> it will wait until it gets data
+        #start the thread
+        self.clientThread.start()
+
         #initialize window
         QtWidgets.QMainWindow.__init__(self, parent)
         self.ui = Ui_MainWindow()
@@ -60,6 +80,11 @@ class Main(QtWidgets.QMainWindow):
 
         #model name
         self.modelname = self.ui.modelname
+        #connection elements in the ui
+        self.bserverConnect = self.ui.bserverconnect        #button: connect client in this program to a server
+        self.bserverDisconnect = self.ui.bserverdisconnect    #button: disconnect client in this program from a server
+        self.serverIP = self.ui.leserverip
+        self.serverPort = self.ui.leserverport
         #tab
         self.tabs = self.ui.tabs
         #menu with the name File
@@ -619,8 +644,27 @@ class Main(QtWidgets.QMainWindow):
         self.ui.actionInfo.triggered.connect(self.info)
         self.ui.actionAbout.triggered.connect(self.about)
 
+        #main ui signals - connection
+        self.bserverConnect.clicked.connect(self.connectButtonPressed)
+        self.bserverDisconnect.clicked.connect(self.disconnectButtonPressed)
+
+        #connection: further signals -> detect changes in the editor -> clientSend
+        #when a tab is changed, these signals need to be reconnected -> see function tabWasChanged
+        self.modellist[self.activeTab][0].sespesChangedSignal.connect(self.clientSend)          #changes in the sespes
+        self.modellist[self.activeTab][1].sesvarChangedSignal.connect(self.clientSend)          #changes in the sesvars
+        self.modellist[self.activeTab][2].sesfunChangedSignal.connect(self.clientSend)          #changes in the sesfuns
+        self.modellist[self.activeTab][3].treeChangedSignal.connect(self.clientSend)            #changes in the tree: add sub/sibling node, delete node, change type, add subtree
+        self.modellist[self.activeTab][3].treeModel.treeChangedSignal.connect(self.clientSend)  #changes in ui (e.g. rename node in ui), paste changes in node specific properties
+        self.modellist[self.activeTab][4].semconChangedSignal.connect(self.clientSend)          #changes in the semcons
+        self.modellist[self.activeTab][5].selconChangedSignal.connect(self.clientSend)          #changes in the selcons
+
         #set modelname
         self.setModelname()
+
+        #set connection variable and buttons
+        self.connectionEstablished = False
+        self.sendInProgress = False
+        self.setConnectionButtons()
 
         #set variables and start the clock in the statusbar
         self.timer = QtCore.QTimer(self)
@@ -686,6 +730,16 @@ class Main(QtWidgets.QMainWindow):
         self.setModelname()
         self.setFooter()
 
+        #connection: further signals -> detect changes in the editor -> clientSend
+        #when a tab is changed, these signals need to be reconnected
+        self.modellist[self.activeTab][0].sespesChangedSignal.connect(self.clientSend)          #changes in the sespes
+        self.modellist[self.activeTab][1].sesvarChangedSignal.connect(self.clientSend)          #changes in the sesvars
+        self.modellist[self.activeTab][2].sesfunChangedSignal.connect(self.clientSend)          #changes in the sesfuns
+        self.modellist[self.activeTab][3].treeChangedSignal.connect(self.clientSend)            #changes in the tree: add sub/sibling node, delete node, change type, add subtree
+        self.modellist[self.activeTab][3].treeModel.treeChangedSignal.connect(self.clientSend)  #changes in ui (e.g. rename node in ui), paste changes in node specific properties
+        self.modellist[self.activeTab][4].semconChangedSignal.connect(self.clientSend)          #changes in the semcons
+        self.modellist[self.activeTab][5].selconChangedSignal.connect(self.clientSend)          #changes in the selcons
+
     #-----events--------------------------------------------------------------------------------------------------------
 
     """event filter"""
@@ -715,6 +769,8 @@ class Main(QtWidgets.QMainWindow):
 
         if reply == QMessageBox.Yes:
             event.accept()
+            #close the connection -> the client thread as well
+            self.clientThread.quit()
         else:
             event.ignore()
 
@@ -767,7 +823,7 @@ class Main(QtWidgets.QMainWindow):
             QMessageBox.information(self, "You are crazy...", "...and are very brave still using this piece of buggy software.\n\nBy the way - did I get money from you?", QtWidgets.QMessageBox.Ok)
             self.mouseclicks = 0
 
-    #-----set the modelname field---------------------------------------------------------------------------------------
+    #-----set the modelname field and the connection buttons, clientSend function---------------------------------------
 
     """set the modelname field according to the selected model"""
     def setModelname(self):
@@ -776,6 +832,105 @@ class Main(QtWidgets.QMainWindow):
         else:
             fname = self.filePathName[self.activeTab].split("/")[-1].split(".")[0]
             self.modelname.setText("<html><b>Model " + str(self.activeTab+1) + ": " + fname + "</b></html>")
+
+    """set the connection buttons"""
+    def setConnectionButtons(self):
+        if not self.connectionEstablished:
+            self.bserverConnect.setDisabled(False)
+            self.bserverDisconnect.setDisabled(True)
+        else:
+            self.bserverConnect.setDisabled(True)
+            self.bserverDisconnect.setDisabled(False)
+
+    """connection slots"""
+    def connectButtonPressed(self):
+        def checkIp(ip):
+            ipOK = True
+            ips = ip.split(".", 4)
+            if len(ips) == 4:
+                for l in ips:
+                    if l.isdigit():
+                        if int(l) < 256:
+                            pass
+                        else:
+                            ipOK = False
+                    else:
+                        ipOK = False
+            else:
+                ipOK = False
+            return ipOK
+        def checkPort(port):
+            portOK = True
+            try:
+                intport = int(port)
+                if intport > 65535:
+                    portOK = False
+            except:
+                portOK = False
+            return portOK
+
+        #here the function begins
+
+        serverIP = self.serverIP.text()
+        serverPort = self.serverPort.text()
+        #check that these are okay
+        ipok = checkIp(serverIP)
+        portok = checkPort(serverPort)
+        if ipok and portok:
+            #set the variables in the client object
+            self.clientObj.serverIP = serverIP
+            self.clientObj.serverPort = int(serverPort)
+            #now that the values are set, the client is connected in the thread
+        else:
+            QMessageBox.critical(self, "IP or Port not allowed", "The IP or the port you entered are not allowed.", QtWidgets.QMessageBox.Ok)
+
+    #slot connected with clientConnectionSignal from client class -> set the buttons according to the success of the connection
+    def onConnectPressed(self, connectionSuccessful):
+        self.connectionEstablished = connectionSuccessful
+        self.setConnectionButtons()
+        if not connectionSuccessful:
+            QMessageBox.critical(self, "No connection", "The connection could not be established. Is there a server under this IP/Port combination? If there is, please restart the server and this program.", QtWidgets.QMessageBox.Ok)
+        else:
+            self.clientSend()
+
+    #slot connected with clientNoSendSignal from client class -> set the buttons when the connection is lost
+    def onConnectionLost(self):
+        #disconnect, when the connection is lost
+        self.connectionEstablished = False
+        self.setConnectionButtons()
+        QMessageBox.critical(self, "Connection lost", "The connection to the server was lost and therefore the connection is resetted.", QtWidgets.QMessageBox.Ok)
+
+    def disconnectButtonPressed(self):
+        self.clientObj.serverIP = ""
+        self.clientObj.serverPort = 0
+        #now that the values are nulled, the client is disconnected in the thread
+        self.connectionEstablished = False
+        self.setConnectionButtons()
+
+    def clientSend(self):
+        if self.connectionEstablished and not self.sendInProgress and not self.modellist[self.activeTab][3].isRestoringTree:
+            self.sendInProgress = True
+            # tree
+            nodelist = self.modellist[self.activeTab][3].treeToList(False)
+            # ses/pes
+            sespes = self.modellist[self.activeTab][0].outputSesPes()
+            # ses variables
+            sesvarlist = self.modellist[self.activeTab][1].outputSesVarList()
+            # semantic conditions
+            semconlist = self.modellist[self.activeTab][4].outputSemCondList()
+            # selection constraints
+            selconlist = self.modellist[self.activeTab][5].outputSelConsList(False, nodelist)
+            selconsok = True
+            if selconlist == [["", "", "", "", ""]]:
+                selconlist = []
+                selconsok = False
+            # ses functions
+            sesfunlist = self.modellist[self.activeTab][2].outputSesFunList()
+            if selconsok:
+                xmlstr = toXML(nodelist, sespes, sesvarlist, semconlist, selconlist, sesfunlist)
+                self.clientObj.sendstring = xmlstr
+                #the data is set so that clientObj.clientSend() can work
+            self.sendInProgress = False
 
     #-----set the footer------------------------------------------------------------------------------------------------
 
@@ -1038,6 +1193,10 @@ class Main(QtWidgets.QMainWindow):
                     #time
                     if loadtime != "":
                         self.lastsaved[self.activeTab] = loadtime[9:].replace(" ", " - ")
+                    # recalculate all decision nodes if imported
+                    if exXML:
+                        self.modellist[self.activeTab][1].sesvarChangedSignal.emit()
+                        self.modellist[self.activeTab][2].sesfunChangedSignal.emit()
                     #return
                     return True
                 else:
@@ -1262,6 +1421,10 @@ class Main(QtWidgets.QMainWindow):
                         #selection constraints -> now in the restoring of the nodelist since uids have to be updated
                         #if selconlist:
                             #self.modellist[self.activeTab][5].fromSave(selconlist, True)
+                        # recalculate all decision nodes if imported
+                        if exXML:
+                            self.modellist[self.activeTab][1].sesvarChangedSignal.emit()
+                            self.modellist[self.activeTab][2].sesfunChangedSignal.emit()
                         QMessageBox.information(self, "Please check", "You inserted a SubSES. Please check the general settings and the SubSES.", QtWidgets.QMessageBox.Ok)
                     if not amok:
                         QMessageBox.critical(self, "Can not insert", "Can not insert. The node in which the SubSES shall be inserted does not have the same name as the first node of the subtree, at least one of the nodenames already exists or the alternating mode would not be satisfied.", QtWidgets.QMessageBox.Ok)
@@ -1388,10 +1551,12 @@ if __name__ == "__main__":
                     else:
                         sesvars = sesvars[1:-1]
                         sesvarlist = sesvars.split(",")
+                        sesvarlist = [x.strip(' ') for x in sesvarlist]
 
                         if pesfile == "":   #only create the filename if it is not given
-                            pesfile = splitext(sesfile)[0]+"_pruned_"+"_".join(sesvarlist)+".jsonsestree"
-                            pesfile = pesfile.replace("=", "e")
+                            #pesfile = splitext(sesfile)[0]+"_pruned_"+"_".join(sesvarlist)+".jsonsestree"  #sesvars in filename of pes
+                            #pesfile = pesfile.replace("=", "e").replace("'","").replace('"', '')
+                            pesfile = splitext(sesfile)[0] + "_pruned.jsonsestree"
 
                         print("\nPruning using the SES file: "+sesfile)
                         print("Using the SES variables: "+sesvars)

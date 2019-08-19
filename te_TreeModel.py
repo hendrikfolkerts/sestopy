@@ -19,6 +19,7 @@ class TreeModel(QAbstractItemModel):
     numrepInsertedSignal = pyqtSignal()
     couplingInsertedSignal = pyqtSignal()
     specruleInsertedSignal = pyqtSignal()
+    treeChangedSignal = pyqtSignal()
 
     """INPUTS: Node, QObject"""
     def __init__(self, root, treeview, parent=None):
@@ -161,6 +162,7 @@ class TreeModel(QAbstractItemModel):
                 node.setName(value)
 
                 self.nameChangedSignal.emit()
+                self.treeChangedSignal.emit()
                 
                 return True
 
@@ -168,6 +170,7 @@ class TreeModel(QAbstractItemModel):
 
                 node = index.internalPointer()
                 node.setColor(value)
+                self.treeChangedSignal.emit()
 
                 return True
 
@@ -175,6 +178,7 @@ class TreeModel(QAbstractItemModel):
 
                 node = index.internalPointer()
                 node.setBold(value)
+                self.treeChangedSignal.emit()
 
         return False
 
@@ -202,6 +206,7 @@ class TreeModel(QAbstractItemModel):
                     elif listtype == "specrulelist" and node.typeInfo() == "Spec Node":
                         node.setSpecrules(value)
                         self.specruleInsertedSignal.emit()
+        self.treeChangedSignal.emit()
 
     """display something on view header"""
     """INPUTS: int, Qt::Orientation, int"""
@@ -300,7 +305,7 @@ class TreeModel(QAbstractItemModel):
     """INPUTS: int, int, QModelIndex, int, str, str, list, ..."""
     """insert children into the parent"""
     def insertRows(self, position, rows, parent=QtCore.QModelIndex(), uid=-1, type="Node", name="", childrlist=None, textColor = "#000000", bold=False, attributes="", aspectrules="", couplings="", numrep="1", specrules="", priority="1"):  #default empty QModelIndex() as parent -> insert in root
-        
+
         parentNode = self.getNode(parent)
 
         #if position is -1, add at end
@@ -360,7 +365,7 @@ class TreeModel(QAbstractItemModel):
     """INPUTS: int, int, QModelIndex"""
     """remove children"""
     def removeRows(self, position, rows, parent=QtCore.QModelIndex()):  #default empty QModelIndex() as parent -> remove in root
-        
+
         parentNode = self.getNode(parent)
         self.beginRemoveRows(parent, position, position + rows - 1)
 

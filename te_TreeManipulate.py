@@ -17,6 +17,7 @@ from pn_specrule import *
 class TreeManipulate(QtCore.QObject):   #for defining a signal the class must be inherited from QObject
 
     nodeDeletedSignal = pyqtSignal()
+    treeChangedSignal = pyqtSignal()
 
     """init"""
     def __init__(self, main, tabnumber):
@@ -975,6 +976,8 @@ class TreeManipulate(QtCore.QObject):   #for defining a signal the class must be
         self.resz()
         # keep the uniformity
         #self.keepUniformity("an", position, index.row(), index.column(), index)
+        #tree changed signal
+        self.treeChangedSignal.emit()
         return newind
 
     """Adding a SiblingNode"""
@@ -1022,6 +1025,8 @@ class TreeManipulate(QtCore.QObject):   #for defining a signal the class must be
         self.resz()
         # keep the uniformity
         #self.keepUniformity("an", position, index.row()+1, index.column(), par)
+        #tree changed signal
+        self.treeChangedSignal.emit()
         return newind
 
     """possible types - alternating mode (needed for inserting a sub node or a sibling node)"""
@@ -1078,6 +1083,8 @@ class TreeManipulate(QtCore.QObject):   #for defining a signal the class must be
         self.checkAxiomsUpdate("dn", "", -1, QModelIndex, "", deletedName)
         # allow checks again
         self.allowChecks = True
+        #tree changed signal
+        self.treeChangedSignal.emit()
 
     """Hierarchy Model Tree View expand all"""
     def expandAll(self):
@@ -1150,6 +1157,8 @@ class TreeManipulate(QtCore.QObject):   #for defining a signal the class must be
 
         # resize
         self.resz()
+        #tree changed signal
+        self.treeChangedSignal.emit()
 
     """if the type of a node is changed make sure the type is changed at all nodes with the same name"""
     """ #not needed any more -> now part of uniformity check
@@ -1219,6 +1228,8 @@ class TreeManipulate(QtCore.QObject):   #for defining a signal the class must be
 
         # resize
         self.resz()
+        #tree changed signal
+        self.treeChangedSignal.emit()
 
     #-----list all indices of a tree------------------------------------------------------------------------------------
 

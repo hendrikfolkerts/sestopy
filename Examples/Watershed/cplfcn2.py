@@ -7,8 +7,8 @@ def cplfcn2(children, parent, NUM):
 	
 	#variable couplings
 	for i in range(0,NUM):
-		cplg.append([parent,"in"+str(i+1),children[i],"in",""])
-		cplg.append([children[i],"out",parent,"out"+str(i+1),""])
+		cplg.append([parent,"in"+str(i+1)+" / SPR",children[i],"in / SPR",""])
+		cplg.append([children[i],"out / SPR",parent,"out"+str(i+1)+" / SPR",""])
 	
 	#return
 	return cplg

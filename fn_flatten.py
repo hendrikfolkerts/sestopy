@@ -303,38 +303,39 @@ class Flatten:
                 nodelist[i][12] = "2"
             i -= 1
         #add the couplings of the second node
-        cpl = nodelist[1][8]
-        if len(cpl) > 0:
-            for cp in cpl:
-                cp.append(nodelist[1][0])  #add the uid of the node the couplings stand in
-            couplinglist = cpl + couplinglist
-        #add the names of the first and the second node to the nodenamesPartOfFpes list (because for couplings it is important to know, which nodes will still be in the FPES)
-        #nodenamesPartOfFpes.extend([paths[0][0][0].name()])
-        #nodenamesPartOfFpes.extend([paths[0][1][0].name()])
-        nodenamesPartOfFpes.insert(0, paths[0][1][0].name())   #insert at front -> actually order does not matter
-        nodenamesPartOfFpes.insert(0, paths[0][0][0].name())   #insert at front -> actually order does not matter
+        if len(nodelist) > 1:
+            cpl = nodelist[1][8]
+            if len(cpl) > 0:
+                for cp in cpl:
+                    cp.append(nodelist[1][0])  #add the uid of the node the couplings stand in
+                couplinglist = cpl + couplinglist
+            #add the names of the first and the second node to the nodenamesPartOfFpes list (because for couplings it is important to know, which nodes will still be in the FPES)
+            #nodenamesPartOfFpes.extend([paths[0][0][0].name()])
+            #nodenamesPartOfFpes.extend([paths[0][1][0].name()])
+            nodenamesPartOfFpes.insert(0, paths[0][1][0].name())   #insert at front -> actually order does not matter
+            nodenamesPartOfFpes.insert(0, paths[0][0][0].name())   #insert at front -> actually order does not matter
 
-        #correct nodenames in the couplinglist (that have changed because of resolving duplicates)
-        for cpl in couplinglist:
-            if cpl[1] in uidNewnameDict:
-                cpl[0] = uidNewnameDict.get(cpl[1])
-            if cpl[4] in uidNewnameDict:
-                cpl[3] = uidNewnameDict.get(cpl[4])
+            #correct nodenames in the couplinglist (that have changed because of resolving duplicates)
+            for cpl in couplinglist:
+                if cpl[1] in uidNewnameDict:
+                    cpl[0] = uidNewnameDict.get(cpl[1])
+                if cpl[4] in uidNewnameDict:
+                    cpl[3] = uidNewnameDict.get(cpl[4])
 
-        #all couplings are in the couplinglist -> now correct the couplings, since they will all be placed in the second node
-        # -> using the couplinglist and the list containing the nodenames, which are part of the FPES (nodenamesPartOfFpes)
-        notCompletelyCorrected = True
-        t = 0   #for safety, that the while loop is definitely exited if there is a problem correcting the couplings
-        while notCompletelyCorrected and t<10:   #do, until all couplings are corrected completely, but t times at maximum -> actually all should be done on the first run
-            couplinglist, notCompletelyCorrected = self.correctCouplings(self, couplinglist, nodenamesPartOfFpes)
-            t += 1
+            #all couplings are in the couplinglist -> now correct the couplings, since they will all be placed in the second node
+            # -> using the couplinglist and the list containing the nodenames, which are part of the FPES (nodenamesPartOfFpes)
+            notCompletelyCorrected = True
+            t = 0   #for safety, that the while loop is definitely exited if there is a problem correcting the couplings
+            while notCompletelyCorrected and t<10:   #do, until all couplings are corrected completely, but t times at maximum -> actually all should be done on the first run
+                couplinglist, notCompletelyCorrected = self.correctCouplings(self, couplinglist, nodenamesPartOfFpes)
+                t += 1
 
-        #warning, if not all couplings could be corrected
-        if notCompletelyCorrected:
-            QMessageBox.information(None, "Cannot correct the couplings completely", "The couplings could not be corrected completely for the FPES. Please do so manually.", QtWidgets.QMessageBox.Ok)
+            #warning, if not all couplings could be corrected
+            if notCompletelyCorrected:
+                QMessageBox.information(None, "Cannot correct the couplings completely", "The couplings could not be corrected completely for the FPES. Please do so manually.", QtWidgets.QMessageBox.Ok)
 
-        #place the recalculated couplings in the second node of the nodelist (the only aspect node)
-        nodelist[1][8] = couplinglist
+            #place the recalculated couplings in the second node of the nodelist (the only aspect node)
+            nodelist[1][8] = couplinglist
 
         #return the final nodelist
         return nodelist

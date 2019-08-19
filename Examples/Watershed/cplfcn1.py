@@ -8,19 +8,19 @@ def cplfcn1(children,parent,NUM):
 	cplg = []
 	
 	#fixed couplings
-	cplg.append([parent,"in1",children[0],"in1",""])
-	cplg.append([parent,"in2",children[0],"in2",""])
-	cplg.append([parent,"in3",children[0],"in3",""])
-	cplg.append([parent,"in4",children[2],"in1",""])
-	cplg.append([children[0],"out1",children[1],"in1",""])
-	cplg.append([children[1],"out1",children[2],"in2",""])
-	cplg.append([children[2],"out1",children[3],"in1",""])
-	cplg.append([children[3],"out",parent,"out",""])
+	cplg.append([parent,"in1 / SPR",children[0],"in1 / SPR",""])
+	cplg.append([parent,"in2 / SPR",children[0],"in2 / SPR",""])
+	cplg.append([parent,"in3 / SPR",children[0],"in3 / SPR",""])
+	cplg.append([parent,"in4 / SPR",children[2],"in1 / SPR",""])
+	cplg.append([children[0],"out1 / SPR",children[1],"in1 / SPR",""])
+	cplg.append([children[1],"out1 / SPR",children[2],"in2 / SPR",""])
+	cplg.append([children[2],"out1 / SPR",children[3],"in1 / SPR",""])
+	cplg.append([children[3],"out / SPR",parent,"out / SPR",""])
 	
 	#variable couplings
 	if NUM==2:
-		cplg.append([children[0],"out2",children[1],"in2",""])
-		cplg.append([children[1],"out2",children[3],"in2",""])
+		cplg.append([children[0],"out2 / SPR",children[1],"in2 / SPR",""])
+		cplg.append([children[1],"out2 / SPR",children[3],"in2 / SPR",""])
 	
 	#return
 	return cplg

@@ -20,11 +20,102 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_17">
     <item>
-     <widget class="QLabel" name="modelname">
-      <property name="text">
-       <string>Model name</string>
+     <layout class="QHBoxLayout" name="horizontalLayout_16">
+      <property name="topMargin">
+       <number>0</number>
       </property>
-     </widget>
+      <item>
+       <widget class="QLabel" name="modelname">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Model name</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lserverip">
+        <property name="text">
+         <string>Connection to server program taking the XML tree: Server IP</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="leserverip">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>90</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>127.0.0.1</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lserverport">
+        <property name="text">
+         <string>Server Port</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="leserverport">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>25</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>54545</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="bserverconnect">
+        <property name="text">
+         <string>Connect</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="bserverdisconnect">
+        <property name="text">
+         <string>Disconnect</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QTabWidget" name="tabs">
@@ -90,7 +181,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -175,7 +266,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -269,7 +360,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -350,7 +441,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -494,7 +585,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -792,7 +883,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -805,7 +896,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>257</width>
-                 <height>502</height>
+                 <height>490</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -905,7 +996,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -970,7 +1061,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1031,7 +1122,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>257</width>
-                 <height>502</height>
+                 <height>490</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1153,7 +1244,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1226,7 +1317,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -1928,7 +2019,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -2362,7 +2453,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -3064,7 +3155,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -3498,7 +3589,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -4200,7 +4291,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -4634,7 +4725,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -5336,7 +5427,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -5770,7 +5861,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -6472,7 +6563,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -6906,7 +6997,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -7608,7 +7699,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -8042,7 +8133,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -8744,7 +8835,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -9178,7 +9269,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>422</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -9993,7 +10084,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>394</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -10314,7 +10405,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>507</width>
-                 <height>546</height>
+                 <height>534</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -11016,7 +11107,7 @@
                  <x>0</x>
                  <y>0</y>
                  <width>212</width>
-                 <height>519</height>
+                 <height>507</height>
                 </rect>
                </property>
                <attribute name="label">
@@ -11667,6 +11758,612 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>tabs</tabstop>
+  <tabstop>rbsesm1</tabstop>
+  <tabstop>rbipesm1</tabstop>
+  <tabstop>rbpesm1</tabstop>
+  <tabstop>rbfpesm1</tabstop>
+  <tabstop>tesescommentm1</tabstop>
+  <tabstop>bsespeshelpm1</tabstop>
+  <tabstop>tvsesvariableviewm1</tabstop>
+  <tabstop>lesesvariablenamem1</tabstop>
+  <tabstop>lesesvariablevaluem1</tabstop>
+  <tabstop>bsesvariableinsertm1</tabstop>
+  <tabstop>bsesvariabledeletem1</tabstop>
+  <tabstop>bsesvariablehelpm1</tabstop>
+  <tabstop>tvsemanticconditionviewm1</tabstop>
+  <tabstop>lesemanticconditionm1</tabstop>
+  <tabstop>bsemanticconditioninsertm1</tabstop>
+  <tabstop>bsemanticconditiondeletem1</tabstop>
+  <tabstop>bsemanticconditionhelpm1</tabstop>
+  <tabstop>bselectionconstraintsstartm1</tabstop>
+  <tabstop>bselectionconstraintsstopm1</tabstop>
+  <tabstop>bselectionconstraintsclearm1</tabstop>
+  <tabstop>bselectionconstraintsinsertm1</tabstop>
+  <tabstop>bselectionconstraintsdeletem1</tabstop>
+  <tabstop>bselectionconstraintshelpm1</tabstop>
+  <tabstop>tvsesfunctionsviewm1</tabstop>
+  <tabstop>bsesfunctioninsertm1</tabstop>
+  <tabstop>bsesfunctiondeletem1</tabstop>
+  <tabstop>bsesfunctionhelpm1</tabstop>
+  <tabstop>cbnodetypem1</tabstop>
+  <tabstop>hierarchymodeltreeviewm1</tabstop>
+  <tabstop>baddsubnodem1</tabstop>
+  <tabstop>baddsiblingnodem1</tabstop>
+  <tabstop>bdeletenodem1</tabstop>
+  <tabstop>bexpandallm1</tabstop>
+  <tabstop>bcollapseallm1</tabstop>
+  <tabstop>leserverip</tabstop>
+  <tabstop>leserverport</tabstop>
+  <tabstop>bserverconnect</tabstop>
+  <tabstop>tvselectionconstraintsviewm1</tabstop>
+  <tabstop>tvattributesviewm1</tabstop>
+  <tabstop>lenameattributesm1</tabstop>
+  <tabstop>levalueattributesm1</tabstop>
+  <tabstop>battributesinsertm1</tabstop>
+  <tabstop>battributesdeletem1</tabstop>
+  <tabstop>battributeshelpm1</tabstop>
+  <tabstop>tvaspectruleviewm1</tabstop>
+  <tabstop>leprioritym1</tabstop>
+  <tabstop>lepriorityresm1</tabstop>
+  <tabstop>baspectrulehelpm1</tabstop>
+  <tabstop>levaluenumberofreplicationm1</tabstop>
+  <tabstop>levaluenumberofreplicationresm1</tabstop>
+  <tabstop>bnumberofreplicationhelpm1</tabstop>
+  <tabstop>tvcouplingviewm1</tabstop>
+  <tabstop>cbcouplingssonamem1</tabstop>
+  <tabstop>cbcouplingssinamem1</tabstop>
+  <tabstop>lelistcouplingm1</tabstop>
+  <tabstop>bcouplingsinsertm1</tabstop>
+  <tabstop>bcouplingsdeletem1</tabstop>
+  <tabstop>bcouplingshelpm1</tabstop>
+  <tabstop>cbcouplingfunselectm1</tabstop>
+  <tabstop>lecouplingfunselectm1</tabstop>
+  <tabstop>lecouplingfunselectresm1</tabstop>
+  <tabstop>tvspecruleviewm1</tabstop>
+  <tabstop>bspecrulehelpm1</tabstop>
+  <tabstop>rbsesm2</tabstop>
+  <tabstop>rbipesm2</tabstop>
+  <tabstop>rbpesm2</tabstop>
+  <tabstop>rbfpesm2</tabstop>
+  <tabstop>tesescommentm2</tabstop>
+  <tabstop>bsespeshelpm2</tabstop>
+  <tabstop>tvsesvariableviewm2</tabstop>
+  <tabstop>lesesvariablenamem2</tabstop>
+  <tabstop>lesesvariablevaluem2</tabstop>
+  <tabstop>bsesvariableinsertm2</tabstop>
+  <tabstop>bsesvariabledeletem2</tabstop>
+  <tabstop>bsesvariablehelpm2</tabstop>
+  <tabstop>tvsemanticconditionviewm2</tabstop>
+  <tabstop>lesemanticconditionm2</tabstop>
+  <tabstop>bsemanticconditioninsertm2</tabstop>
+  <tabstop>bsemanticconditiondeletem2</tabstop>
+  <tabstop>bsemanticconditionhelpm2</tabstop>
+  <tabstop>tvselectionconstraintsviewm2</tabstop>
+  <tabstop>bselectionconstraintsstartm2</tabstop>
+  <tabstop>bselectionconstraintsstopm2</tabstop>
+  <tabstop>bselectionconstraintsclearm2</tabstop>
+  <tabstop>bselectionconstraintsinsertm2</tabstop>
+  <tabstop>bselectionconstraintsdeletem2</tabstop>
+  <tabstop>bselectionconstraintshelpm2</tabstop>
+  <tabstop>tvsesfunctionsviewm2</tabstop>
+  <tabstop>bsesfunctioninsertm2</tabstop>
+  <tabstop>bsesfunctiondeletem2</tabstop>
+  <tabstop>bsesfunctionhelpm2</tabstop>
+  <tabstop>hierarchymodeltreeviewm2</tabstop>
+  <tabstop>cbnodetypem2</tabstop>
+  <tabstop>baddsubnodem2</tabstop>
+  <tabstop>baddsiblingnodem2</tabstop>
+  <tabstop>bdeletenodem2</tabstop>
+  <tabstop>bexpandallm2</tabstop>
+  <tabstop>bcollapseallm2</tabstop>
+  <tabstop>tvattributesviewm2</tabstop>
+  <tabstop>lenameattributesm2</tabstop>
+  <tabstop>levalueattributesm2</tabstop>
+  <tabstop>battributesinsertm2</tabstop>
+  <tabstop>battributesdeletem2</tabstop>
+  <tabstop>battributeshelpm2</tabstop>
+  <tabstop>tvaspectruleviewm2</tabstop>
+  <tabstop>leprioritym2</tabstop>
+  <tabstop>lepriorityresm2</tabstop>
+  <tabstop>baspectrulehelpm2</tabstop>
+  <tabstop>levaluenumberofreplicationm2</tabstop>
+  <tabstop>levaluenumberofreplicationresm2</tabstop>
+  <tabstop>bnumberofreplicationhelpm2</tabstop>
+  <tabstop>tvcouplingviewm2</tabstop>
+  <tabstop>cbcouplingssonamem2</tabstop>
+  <tabstop>cbcouplingssinamem2</tabstop>
+  <tabstop>lelistcouplingm2</tabstop>
+  <tabstop>bcouplingsinsertm2</tabstop>
+  <tabstop>bcouplingsdeletem2</tabstop>
+  <tabstop>bcouplingshelpm2</tabstop>
+  <tabstop>cbcouplingfunselectm2</tabstop>
+  <tabstop>lecouplingfunselectm2</tabstop>
+  <tabstop>lecouplingfunselectresm2</tabstop>
+  <tabstop>tvspecruleviewm2</tabstop>
+  <tabstop>bspecrulehelpm2</tabstop>
+  <tabstop>rbsesm3</tabstop>
+  <tabstop>rbipesm3</tabstop>
+  <tabstop>rbpesm3</tabstop>
+  <tabstop>rbfpesm3</tabstop>
+  <tabstop>tesescommentm3</tabstop>
+  <tabstop>bsespeshelpm3</tabstop>
+  <tabstop>tvsesvariableviewm3</tabstop>
+  <tabstop>lesesvariablenamem3</tabstop>
+  <tabstop>lesesvariablevaluem3</tabstop>
+  <tabstop>bsesvariableinsertm3</tabstop>
+  <tabstop>bsesvariabledeletem3</tabstop>
+  <tabstop>bsesvariablehelpm3</tabstop>
+  <tabstop>tvsemanticconditionviewm3</tabstop>
+  <tabstop>lesemanticconditionm3</tabstop>
+  <tabstop>bsemanticconditioninsertm3</tabstop>
+  <tabstop>bsemanticconditiondeletem3</tabstop>
+  <tabstop>bsemanticconditionhelpm3</tabstop>
+  <tabstop>tvselectionconstraintsviewm3</tabstop>
+  <tabstop>bselectionconstraintsstartm3</tabstop>
+  <tabstop>bselectionconstraintsstopm3</tabstop>
+  <tabstop>bselectionconstraintsclearm3</tabstop>
+  <tabstop>bselectionconstraintsinsertm3</tabstop>
+  <tabstop>bselectionconstraintsdeletem3</tabstop>
+  <tabstop>bselectionconstraintshelpm3</tabstop>
+  <tabstop>tvsesfunctionsviewm3</tabstop>
+  <tabstop>bsesfunctioninsertm3</tabstop>
+  <tabstop>bsesfunctiondeletem3</tabstop>
+  <tabstop>bsesfunctionhelpm3</tabstop>
+  <tabstop>hierarchymodeltreeviewm3</tabstop>
+  <tabstop>cbnodetypem3</tabstop>
+  <tabstop>baddsubnodem3</tabstop>
+  <tabstop>baddsiblingnodem3</tabstop>
+  <tabstop>bdeletenodem3</tabstop>
+  <tabstop>bexpandallm3</tabstop>
+  <tabstop>bcollapseallm3</tabstop>
+  <tabstop>tvattributesviewm3</tabstop>
+  <tabstop>lenameattributesm3</tabstop>
+  <tabstop>levalueattributesm3</tabstop>
+  <tabstop>battributesinsertm3</tabstop>
+  <tabstop>battributesdeletem3</tabstop>
+  <tabstop>battributeshelpm3</tabstop>
+  <tabstop>tvaspectruleviewm3</tabstop>
+  <tabstop>leprioritym3</tabstop>
+  <tabstop>lepriorityresm3</tabstop>
+  <tabstop>baspectrulehelpm3</tabstop>
+  <tabstop>levaluenumberofreplicationm3</tabstop>
+  <tabstop>levaluenumberofreplicationresm3</tabstop>
+  <tabstop>bnumberofreplicationhelpm3</tabstop>
+  <tabstop>tvcouplingviewm3</tabstop>
+  <tabstop>cbcouplingssonamem3</tabstop>
+  <tabstop>cbcouplingssinamem3</tabstop>
+  <tabstop>lelistcouplingm3</tabstop>
+  <tabstop>bcouplingsinsertm3</tabstop>
+  <tabstop>bcouplingsdeletem3</tabstop>
+  <tabstop>bcouplingshelpm3</tabstop>
+  <tabstop>cbcouplingfunselectm3</tabstop>
+  <tabstop>lecouplingfunselectm3</tabstop>
+  <tabstop>lecouplingfunselectresm3</tabstop>
+  <tabstop>tvspecruleviewm3</tabstop>
+  <tabstop>bspecrulehelpm3</tabstop>
+  <tabstop>rbsesm4</tabstop>
+  <tabstop>rbipesm4</tabstop>
+  <tabstop>rbpesm4</tabstop>
+  <tabstop>rbfpesm4</tabstop>
+  <tabstop>tesescommentm4</tabstop>
+  <tabstop>bsespeshelpm4</tabstop>
+  <tabstop>tvsesvariableviewm4</tabstop>
+  <tabstop>lesesvariablenamem4</tabstop>
+  <tabstop>lesesvariablevaluem4</tabstop>
+  <tabstop>bsesvariableinsertm4</tabstop>
+  <tabstop>bsesvariabledeletem4</tabstop>
+  <tabstop>bsesvariablehelpm4</tabstop>
+  <tabstop>tvsemanticconditionviewm4</tabstop>
+  <tabstop>lesemanticconditionm4</tabstop>
+  <tabstop>bsemanticconditioninsertm4</tabstop>
+  <tabstop>bsemanticconditiondeletem4</tabstop>
+  <tabstop>bsemanticconditionhelpm4</tabstop>
+  <tabstop>tvselectionconstraintsviewm4</tabstop>
+  <tabstop>bselectionconstraintsstartm4</tabstop>
+  <tabstop>bselectionconstraintsstopm4</tabstop>
+  <tabstop>bselectionconstraintsclearm4</tabstop>
+  <tabstop>bselectionconstraintsinsertm4</tabstop>
+  <tabstop>bselectionconstraintsdeletem4</tabstop>
+  <tabstop>bselectionconstraintshelpm4</tabstop>
+  <tabstop>tvsesfunctionsviewm4</tabstop>
+  <tabstop>bsesfunctioninsertm4</tabstop>
+  <tabstop>bsesfunctiondeletem4</tabstop>
+  <tabstop>bsesfunctionhelpm4</tabstop>
+  <tabstop>hierarchymodeltreeviewm4</tabstop>
+  <tabstop>cbnodetypem4</tabstop>
+  <tabstop>baddsubnodem4</tabstop>
+  <tabstop>baddsiblingnodem4</tabstop>
+  <tabstop>bdeletenodem4</tabstop>
+  <tabstop>bexpandallm4</tabstop>
+  <tabstop>bcollapseallm4</tabstop>
+  <tabstop>tvattributesviewm4</tabstop>
+  <tabstop>lenameattributesm4</tabstop>
+  <tabstop>levalueattributesm4</tabstop>
+  <tabstop>battributesinsertm4</tabstop>
+  <tabstop>battributesdeletem4</tabstop>
+  <tabstop>battributeshelpm4</tabstop>
+  <tabstop>tvaspectruleviewm4</tabstop>
+  <tabstop>leprioritym4</tabstop>
+  <tabstop>lepriorityresm4</tabstop>
+  <tabstop>baspectrulehelpm4</tabstop>
+  <tabstop>levaluenumberofreplicationm4</tabstop>
+  <tabstop>levaluenumberofreplicationresm4</tabstop>
+  <tabstop>bnumberofreplicationhelpm4</tabstop>
+  <tabstop>tvcouplingviewm4</tabstop>
+  <tabstop>cbcouplingssonamem4</tabstop>
+  <tabstop>cbcouplingssinamem4</tabstop>
+  <tabstop>lelistcouplingm4</tabstop>
+  <tabstop>bcouplingsinsertm4</tabstop>
+  <tabstop>bcouplingsdeletem4</tabstop>
+  <tabstop>bcouplingshelpm4</tabstop>
+  <tabstop>cbcouplingfunselectm4</tabstop>
+  <tabstop>lecouplingfunselectm4</tabstop>
+  <tabstop>lecouplingfunselectresm4</tabstop>
+  <tabstop>tvspecruleviewm4</tabstop>
+  <tabstop>bspecrulehelpm4</tabstop>
+  <tabstop>rbsesm5</tabstop>
+  <tabstop>rbipesm5</tabstop>
+  <tabstop>rbpesm5</tabstop>
+  <tabstop>rbfpesm5</tabstop>
+  <tabstop>tesescommentm5</tabstop>
+  <tabstop>bsespeshelpm5</tabstop>
+  <tabstop>tvsesvariableviewm5</tabstop>
+  <tabstop>lesesvariablenamem5</tabstop>
+  <tabstop>lesesvariablevaluem5</tabstop>
+  <tabstop>bsesvariableinsertm5</tabstop>
+  <tabstop>bsesvariabledeletem5</tabstop>
+  <tabstop>bsesvariablehelpm5</tabstop>
+  <tabstop>tvsemanticconditionviewm5</tabstop>
+  <tabstop>lesemanticconditionm5</tabstop>
+  <tabstop>bsemanticconditioninsertm5</tabstop>
+  <tabstop>bsemanticconditiondeletem5</tabstop>
+  <tabstop>bsemanticconditionhelpm5</tabstop>
+  <tabstop>tvselectionconstraintsviewm5</tabstop>
+  <tabstop>bselectionconstraintsstartm5</tabstop>
+  <tabstop>bselectionconstraintsstopm5</tabstop>
+  <tabstop>bselectionconstraintsclearm5</tabstop>
+  <tabstop>bselectionconstraintsinsertm5</tabstop>
+  <tabstop>bselectionconstraintsdeletem5</tabstop>
+  <tabstop>bselectionconstraintshelpm5</tabstop>
+  <tabstop>tvsesfunctionsviewm5</tabstop>
+  <tabstop>bsesfunctioninsertm5</tabstop>
+  <tabstop>bsesfunctiondeletem5</tabstop>
+  <tabstop>bsesfunctionhelpm5</tabstop>
+  <tabstop>hierarchymodeltreeviewm5</tabstop>
+  <tabstop>cbnodetypem5</tabstop>
+  <tabstop>baddsubnodem5</tabstop>
+  <tabstop>baddsiblingnodem5</tabstop>
+  <tabstop>bdeletenodem5</tabstop>
+  <tabstop>bexpandallm5</tabstop>
+  <tabstop>bcollapseallm5</tabstop>
+  <tabstop>tvattributesviewm5</tabstop>
+  <tabstop>lenameattributesm5</tabstop>
+  <tabstop>levalueattributesm5</tabstop>
+  <tabstop>battributesinsertm5</tabstop>
+  <tabstop>battributesdeletem5</tabstop>
+  <tabstop>battributeshelpm5</tabstop>
+  <tabstop>tvaspectruleviewm5</tabstop>
+  <tabstop>leprioritym5</tabstop>
+  <tabstop>lepriorityresm5</tabstop>
+  <tabstop>baspectrulehelpm5</tabstop>
+  <tabstop>levaluenumberofreplicationm5</tabstop>
+  <tabstop>levaluenumberofreplicationresm5</tabstop>
+  <tabstop>bnumberofreplicationhelpm5</tabstop>
+  <tabstop>tvcouplingviewm5</tabstop>
+  <tabstop>cbcouplingssonamem5</tabstop>
+  <tabstop>cbcouplingssinamem5</tabstop>
+  <tabstop>lelistcouplingm5</tabstop>
+  <tabstop>bcouplingsinsertm5</tabstop>
+  <tabstop>bcouplingsdeletem5</tabstop>
+  <tabstop>bcouplingshelpm5</tabstop>
+  <tabstop>cbcouplingfunselectm5</tabstop>
+  <tabstop>lecouplingfunselectm5</tabstop>
+  <tabstop>lecouplingfunselectresm5</tabstop>
+  <tabstop>tvspecruleviewm5</tabstop>
+  <tabstop>bspecrulehelpm5</tabstop>
+  <tabstop>rbsesm6</tabstop>
+  <tabstop>rbipesm6</tabstop>
+  <tabstop>rbpesm6</tabstop>
+  <tabstop>rbfpesm6</tabstop>
+  <tabstop>tesescommentm6</tabstop>
+  <tabstop>bsespeshelpm6</tabstop>
+  <tabstop>tvsesvariableviewm6</tabstop>
+  <tabstop>lesesvariablenamem6</tabstop>
+  <tabstop>lesesvariablevaluem6</tabstop>
+  <tabstop>bsesvariableinsertm6</tabstop>
+  <tabstop>bsesvariabledeletem6</tabstop>
+  <tabstop>bsesvariablehelpm6</tabstop>
+  <tabstop>tvsemanticconditionviewm6</tabstop>
+  <tabstop>lesemanticconditionm6</tabstop>
+  <tabstop>bsemanticconditioninsertm6</tabstop>
+  <tabstop>bsemanticconditiondeletem6</tabstop>
+  <tabstop>bsemanticconditionhelpm6</tabstop>
+  <tabstop>tvselectionconstraintsviewm6</tabstop>
+  <tabstop>bselectionconstraintsstartm6</tabstop>
+  <tabstop>bselectionconstraintsstopm6</tabstop>
+  <tabstop>bselectionconstraintsclearm6</tabstop>
+  <tabstop>bselectionconstraintsinsertm6</tabstop>
+  <tabstop>bselectionconstraintsdeletem6</tabstop>
+  <tabstop>bselectionconstraintshelpm6</tabstop>
+  <tabstop>tvsesfunctionsviewm6</tabstop>
+  <tabstop>bsesfunctioninsertm6</tabstop>
+  <tabstop>bsesfunctiondeletem6</tabstop>
+  <tabstop>bsesfunctionhelpm6</tabstop>
+  <tabstop>hierarchymodeltreeviewm6</tabstop>
+  <tabstop>cbnodetypem6</tabstop>
+  <tabstop>baddsubnodem6</tabstop>
+  <tabstop>baddsiblingnodem6</tabstop>
+  <tabstop>bdeletenodem6</tabstop>
+  <tabstop>bexpandallm6</tabstop>
+  <tabstop>bcollapseallm6</tabstop>
+  <tabstop>tvattributesviewm6</tabstop>
+  <tabstop>lenameattributesm6</tabstop>
+  <tabstop>levalueattributesm6</tabstop>
+  <tabstop>battributesinsertm6</tabstop>
+  <tabstop>battributesdeletem6</tabstop>
+  <tabstop>battributeshelpm6</tabstop>
+  <tabstop>tvaspectruleviewm6</tabstop>
+  <tabstop>leprioritym6</tabstop>
+  <tabstop>lepriorityresm6</tabstop>
+  <tabstop>baspectrulehelpm6</tabstop>
+  <tabstop>levaluenumberofreplicationm6</tabstop>
+  <tabstop>levaluenumberofreplicationresm6</tabstop>
+  <tabstop>bnumberofreplicationhelpm6</tabstop>
+  <tabstop>tvcouplingviewm6</tabstop>
+  <tabstop>cbcouplingssonamem6</tabstop>
+  <tabstop>cbcouplingssinamem6</tabstop>
+  <tabstop>lelistcouplingm6</tabstop>
+  <tabstop>bcouplingsinsertm6</tabstop>
+  <tabstop>bcouplingsdeletem6</tabstop>
+  <tabstop>bcouplingshelpm6</tabstop>
+  <tabstop>cbcouplingfunselectm6</tabstop>
+  <tabstop>lecouplingfunselectm6</tabstop>
+  <tabstop>lecouplingfunselectresm6</tabstop>
+  <tabstop>tvspecruleviewm6</tabstop>
+  <tabstop>bspecrulehelpm6</tabstop>
+  <tabstop>rbsesm7</tabstop>
+  <tabstop>rbipesm7</tabstop>
+  <tabstop>rbpesm7</tabstop>
+  <tabstop>rbfpesm7</tabstop>
+  <tabstop>tesescommentm7</tabstop>
+  <tabstop>bsespeshelpm7</tabstop>
+  <tabstop>tvsesvariableviewm7</tabstop>
+  <tabstop>lesesvariablenamem7</tabstop>
+  <tabstop>lesesvariablevaluem7</tabstop>
+  <tabstop>bsesvariableinsertm7</tabstop>
+  <tabstop>bsesvariabledeletem7</tabstop>
+  <tabstop>bsesvariablehelpm7</tabstop>
+  <tabstop>tvsemanticconditionviewm7</tabstop>
+  <tabstop>lesemanticconditionm7</tabstop>
+  <tabstop>bsemanticconditioninsertm7</tabstop>
+  <tabstop>bsemanticconditiondeletem7</tabstop>
+  <tabstop>bsemanticconditionhelpm7</tabstop>
+  <tabstop>tvselectionconstraintsviewm7</tabstop>
+  <tabstop>bselectionconstraintsstartm7</tabstop>
+  <tabstop>bselectionconstraintsstopm7</tabstop>
+  <tabstop>bselectionconstraintsclearm7</tabstop>
+  <tabstop>bselectionconstraintsinsertm7</tabstop>
+  <tabstop>bselectionconstraintsdeletem7</tabstop>
+  <tabstop>bselectionconstraintshelpm7</tabstop>
+  <tabstop>tvsesfunctionsviewm7</tabstop>
+  <tabstop>bsesfunctioninsertm7</tabstop>
+  <tabstop>bsesfunctiondeletem7</tabstop>
+  <tabstop>bsesfunctionhelpm7</tabstop>
+  <tabstop>hierarchymodeltreeviewm7</tabstop>
+  <tabstop>cbnodetypem7</tabstop>
+  <tabstop>baddsubnodem7</tabstop>
+  <tabstop>baddsiblingnodem7</tabstop>
+  <tabstop>bdeletenodem7</tabstop>
+  <tabstop>bexpandallm7</tabstop>
+  <tabstop>bcollapseallm7</tabstop>
+  <tabstop>tvattributesviewm7</tabstop>
+  <tabstop>lenameattributesm7</tabstop>
+  <tabstop>levalueattributesm7</tabstop>
+  <tabstop>battributesinsertm7</tabstop>
+  <tabstop>battributesdeletem7</tabstop>
+  <tabstop>battributeshelpm7</tabstop>
+  <tabstop>tvaspectruleviewm7</tabstop>
+  <tabstop>leprioritym7</tabstop>
+  <tabstop>lepriorityresm7</tabstop>
+  <tabstop>baspectrulehelpm7</tabstop>
+  <tabstop>levaluenumberofreplicationm7</tabstop>
+  <tabstop>levaluenumberofreplicationresm7</tabstop>
+  <tabstop>bnumberofreplicationhelpm7</tabstop>
+  <tabstop>tvcouplingviewm7</tabstop>
+  <tabstop>cbcouplingssonamem7</tabstop>
+  <tabstop>cbcouplingssinamem7</tabstop>
+  <tabstop>lelistcouplingm7</tabstop>
+  <tabstop>bcouplingsinsertm7</tabstop>
+  <tabstop>bcouplingsdeletem7</tabstop>
+  <tabstop>bcouplingshelpm7</tabstop>
+  <tabstop>cbcouplingfunselectm7</tabstop>
+  <tabstop>lecouplingfunselectm7</tabstop>
+  <tabstop>lecouplingfunselectresm7</tabstop>
+  <tabstop>tvspecruleviewm7</tabstop>
+  <tabstop>bspecrulehelpm7</tabstop>
+  <tabstop>rbsesm8</tabstop>
+  <tabstop>rbipesm8</tabstop>
+  <tabstop>rbpesm8</tabstop>
+  <tabstop>rbfpesm8</tabstop>
+  <tabstop>tesescommentm8</tabstop>
+  <tabstop>bsespeshelpm8</tabstop>
+  <tabstop>tvsesvariableviewm8</tabstop>
+  <tabstop>lesesvariablenamem8</tabstop>
+  <tabstop>lesesvariablevaluem8</tabstop>
+  <tabstop>bsesvariableinsertm8</tabstop>
+  <tabstop>bsesvariabledeletem8</tabstop>
+  <tabstop>bsesvariablehelpm8</tabstop>
+  <tabstop>tvsemanticconditionviewm8</tabstop>
+  <tabstop>lesemanticconditionm8</tabstop>
+  <tabstop>bsemanticconditioninsertm8</tabstop>
+  <tabstop>bsemanticconditiondeletem8</tabstop>
+  <tabstop>bsemanticconditionhelpm8</tabstop>
+  <tabstop>tvselectionconstraintsviewm8</tabstop>
+  <tabstop>bselectionconstraintsstartm8</tabstop>
+  <tabstop>bselectionconstraintsstopm8</tabstop>
+  <tabstop>bselectionconstraintsclearm8</tabstop>
+  <tabstop>bselectionconstraintsinsertm8</tabstop>
+  <tabstop>bselectionconstraintsdeletem8</tabstop>
+  <tabstop>bselectionconstraintshelpm8</tabstop>
+  <tabstop>tvsesfunctionsviewm8</tabstop>
+  <tabstop>bsesfunctioninsertm8</tabstop>
+  <tabstop>bsesfunctiondeletem8</tabstop>
+  <tabstop>bsesfunctionhelpm8</tabstop>
+  <tabstop>hierarchymodeltreeviewm8</tabstop>
+  <tabstop>cbnodetypem8</tabstop>
+  <tabstop>baddsubnodem8</tabstop>
+  <tabstop>baddsiblingnodem8</tabstop>
+  <tabstop>bdeletenodem8</tabstop>
+  <tabstop>bexpandallm8</tabstop>
+  <tabstop>bcollapseallm8</tabstop>
+  <tabstop>tvattributesviewm8</tabstop>
+  <tabstop>lenameattributesm8</tabstop>
+  <tabstop>levalueattributesm8</tabstop>
+  <tabstop>battributesinsertm8</tabstop>
+  <tabstop>battributesdeletem8</tabstop>
+  <tabstop>battributeshelpm8</tabstop>
+  <tabstop>tvaspectruleviewm8</tabstop>
+  <tabstop>leprioritym8</tabstop>
+  <tabstop>lepriorityresm8</tabstop>
+  <tabstop>baspectrulehelpm8</tabstop>
+  <tabstop>levaluenumberofreplicationm8</tabstop>
+  <tabstop>levaluenumberofreplicationresm8</tabstop>
+  <tabstop>bnumberofreplicationhelpm8</tabstop>
+  <tabstop>tvcouplingviewm8</tabstop>
+  <tabstop>cbcouplingssonamem8</tabstop>
+  <tabstop>cbcouplingssinamem8</tabstop>
+  <tabstop>lelistcouplingm8</tabstop>
+  <tabstop>bcouplingsinsertm8</tabstop>
+  <tabstop>bcouplingsdeletem8</tabstop>
+  <tabstop>bcouplingshelpm8</tabstop>
+  <tabstop>cbcouplingfunselectm8</tabstop>
+  <tabstop>lecouplingfunselectm8</tabstop>
+  <tabstop>lecouplingfunselectresm8</tabstop>
+  <tabstop>tvspecruleviewm8</tabstop>
+  <tabstop>bspecrulehelpm8</tabstop>
+  <tabstop>rbsesm9</tabstop>
+  <tabstop>rbipesm9</tabstop>
+  <tabstop>rbpesm9</tabstop>
+  <tabstop>rbfpesm9</tabstop>
+  <tabstop>tesescommentm9</tabstop>
+  <tabstop>bsespeshelpm9</tabstop>
+  <tabstop>tvsesvariableviewm9</tabstop>
+  <tabstop>lesesvariablenamem9</tabstop>
+  <tabstop>lesesvariablevaluem9</tabstop>
+  <tabstop>bsesvariableinsertm9</tabstop>
+  <tabstop>bsesvariabledeletem9</tabstop>
+  <tabstop>bsesvariablehelpm9</tabstop>
+  <tabstop>tvsemanticconditionviewm9</tabstop>
+  <tabstop>lesemanticconditionm9</tabstop>
+  <tabstop>bsemanticconditioninsertm9</tabstop>
+  <tabstop>bsemanticconditiondeletem9</tabstop>
+  <tabstop>bsemanticconditionhelpm9</tabstop>
+  <tabstop>tvselectionconstraintsviewm9</tabstop>
+  <tabstop>bselectionconstraintsstartm9</tabstop>
+  <tabstop>bselectionconstraintsstopm9</tabstop>
+  <tabstop>bselectionconstraintsclearm9</tabstop>
+  <tabstop>bselectionconstraintsinsertm9</tabstop>
+  <tabstop>bselectionconstraintsdeletem9</tabstop>
+  <tabstop>bselectionconstraintshelpm9</tabstop>
+  <tabstop>tvsesfunctionsviewm9</tabstop>
+  <tabstop>bsesfunctioninsertm9</tabstop>
+  <tabstop>bsesfunctiondeletem9</tabstop>
+  <tabstop>bsesfunctionhelpm9</tabstop>
+  <tabstop>hierarchymodeltreeviewm9</tabstop>
+  <tabstop>cbnodetypem9</tabstop>
+  <tabstop>baddsubnodem9</tabstop>
+  <tabstop>baddsiblingnodem9</tabstop>
+  <tabstop>bdeletenodem9</tabstop>
+  <tabstop>bexpandallm9</tabstop>
+  <tabstop>bcollapseallm9</tabstop>
+  <tabstop>tvattributesviewm9</tabstop>
+  <tabstop>lenameattributesm9</tabstop>
+  <tabstop>levalueattributesm9</tabstop>
+  <tabstop>battributesinsertm9</tabstop>
+  <tabstop>battributesdeletem9</tabstop>
+  <tabstop>battributeshelpm9</tabstop>
+  <tabstop>tvaspectruleviewm9</tabstop>
+  <tabstop>leprioritym9</tabstop>
+  <tabstop>lepriorityresm9</tabstop>
+  <tabstop>baspectrulehelpm9</tabstop>
+  <tabstop>levaluenumberofreplicationm9</tabstop>
+  <tabstop>levaluenumberofreplicationresm9</tabstop>
+  <tabstop>bnumberofreplicationhelpm9</tabstop>
+  <tabstop>tvcouplingviewm9</tabstop>
+  <tabstop>cbcouplingssonamem9</tabstop>
+  <tabstop>cbcouplingssinamem9</tabstop>
+  <tabstop>lelistcouplingm9</tabstop>
+  <tabstop>bcouplingsinsertm9</tabstop>
+  <tabstop>bcouplingsdeletem9</tabstop>
+  <tabstop>bcouplingshelpm9</tabstop>
+  <tabstop>cbcouplingfunselectm9</tabstop>
+  <tabstop>lecouplingfunselectm9</tabstop>
+  <tabstop>lecouplingfunselectresm9</tabstop>
+  <tabstop>tvspecruleviewm9</tabstop>
+  <tabstop>bspecrulehelpm9</tabstop>
+  <tabstop>rbsesm10</tabstop>
+  <tabstop>rbipesm10</tabstop>
+  <tabstop>rbpesm10</tabstop>
+  <tabstop>rbfpesm10</tabstop>
+  <tabstop>tesescommentm10</tabstop>
+  <tabstop>bsespeshelpm10</tabstop>
+  <tabstop>tvsesvariableviewm10</tabstop>
+  <tabstop>lesesvariablenamem10</tabstop>
+  <tabstop>lesesvariablevaluem10</tabstop>
+  <tabstop>bsesvariableinsertm10</tabstop>
+  <tabstop>bsesvariabledeletem10</tabstop>
+  <tabstop>bsesvariablehelpm10</tabstop>
+  <tabstop>tvsemanticconditionviewm10</tabstop>
+  <tabstop>lesemanticconditionm10</tabstop>
+  <tabstop>bsemanticconditioninsertm10</tabstop>
+  <tabstop>bsemanticconditiondeletem10</tabstop>
+  <tabstop>bsemanticconditionhelpm10</tabstop>
+  <tabstop>tvselectionconstraintsviewm10</tabstop>
+  <tabstop>bselectionconstraintsstartm10</tabstop>
+  <tabstop>bselectionconstraintsstopm10</tabstop>
+  <tabstop>bselectionconstraintsclearm10</tabstop>
+  <tabstop>bselectionconstraintsinsertm10</tabstop>
+  <tabstop>bselectionconstraintsdeletem10</tabstop>
+  <tabstop>bselectionconstraintshelpm10</tabstop>
+  <tabstop>tvsesfunctionsviewm10</tabstop>
+  <tabstop>bsesfunctioninsertm10</tabstop>
+  <tabstop>bsesfunctiondeletem10</tabstop>
+  <tabstop>bsesfunctionhelpm10</tabstop>
+  <tabstop>hierarchymodeltreeviewm10</tabstop>
+  <tabstop>cbnodetypem10</tabstop>
+  <tabstop>baddsubnodem10</tabstop>
+  <tabstop>baddsiblingnodem10</tabstop>
+  <tabstop>bdeletenodem10</tabstop>
+  <tabstop>bexpandallm10</tabstop>
+  <tabstop>bcollapseallm10</tabstop>
+  <tabstop>tvattributesviewm10</tabstop>
+  <tabstop>lenameattributesm10</tabstop>
+  <tabstop>levalueattributesm10</tabstop>
+  <tabstop>battributesinsertm10</tabstop>
+  <tabstop>battributesdeletem10</tabstop>
+  <tabstop>battributeshelpm10</tabstop>
+  <tabstop>tvaspectruleviewm10</tabstop>
+  <tabstop>leprioritym10</tabstop>
+  <tabstop>lepriorityresm10</tabstop>
+  <tabstop>baspectrulehelpm10</tabstop>
+  <tabstop>levaluenumberofreplicationm10</tabstop>
+  <tabstop>levaluenumberofreplicationresm10</tabstop>
+  <tabstop>bnumberofreplicationhelpm10</tabstop>
+  <tabstop>tvcouplingviewm10</tabstop>
+  <tabstop>cbcouplingssonamem10</tabstop>
+  <tabstop>cbcouplingssinamem10</tabstop>
+  <tabstop>lelistcouplingm10</tabstop>
+  <tabstop>bcouplingsinsertm10</tabstop>
+  <tabstop>bcouplingsdeletem10</tabstop>
+  <tabstop>bcouplingshelpm10</tabstop>
+  <tabstop>cbcouplingfunselectm10</tabstop>
+  <tabstop>lecouplingfunselectm10</tabstop>
+  <tabstop>lecouplingfunselectresm10</tabstop>
+  <tabstop>tvspecruleviewm10</tabstop>
+  <tabstop>bspecrulehelpm10</tabstop>
+ </tabstops>
  <resources>
   <include location="icons.qrc"/>
  </resources>
