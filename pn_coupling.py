@@ -62,7 +62,7 @@ class CouplingDelegate(QtWidgets.QItemDelegate):
                     linee.setText(ptsplit[0])
                     #set the porttype to the right index
                     ptfound = False
-                    porttypes = ["SPR", "SPI", "SPB", "PP"]
+                    porttypes = ["SPR", "SPI", "SPB", "PPEA", "PPMT"]
                     for n in range(len(porttypes)):
                         if porttypes[n] == ptsplit[1]:
                             combo.setCurrentIndex(n)
@@ -120,7 +120,7 @@ class PortTypeWidget(QtWidgets.QWidget):
         #add elements
         linee = QtWidgets.QLineEdit()
         combo = QtWidgets.QComboBox()
-        combo.addItems(["SPR", "SPI", "SPB", "PP"])
+        combo.addItems(["SPR", "SPI", "SPB", "PPEA", "PPMT"])
         layout.addWidget(linee)
         layout.addWidget(combo)
         #set the layout

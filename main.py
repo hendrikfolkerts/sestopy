@@ -740,6 +740,9 @@ class Main(QtWidgets.QMainWindow):
         self.modellist[self.activeTab][4].semconChangedSignal.connect(self.clientSend)          #changes in the semcons
         self.modellist[self.activeTab][5].selconChangedSignal.connect(self.clientSend)          #changes in the selcons
 
+        #the content of the current tab shall be sent
+        self.modellist[self.activeTab][3].treeChangedSignal.emit()
+
     #-----events--------------------------------------------------------------------------------------------------------
 
     """event filter"""
