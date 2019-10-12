@@ -816,7 +816,7 @@
                    <item>
                     <widget class="QPushButton" name="bcollapseallm1">
                      <property name="toolTip">
-                      <string>Collapse All</string>
+                      <string>Collapse all</string>
                      </property>
                      <property name="text">
                       <string/>

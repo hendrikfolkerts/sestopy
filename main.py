@@ -8,6 +8,8 @@ import os
 from pathlib import Path
 from os.path import splitext
 from time import strftime
+import platform
+from PyQt5.Qt import PYQT_VERSION_STR
 
 __version__ = strftime("%Y"+"."+"%m"+"."+"%d") #for development
 #__version__ = str(1.0)
@@ -697,6 +699,13 @@ class Main(QtWidgets.QMainWindow):
 
         #global dictionary to keep track of uids and nodenames
         self.uidNodenameDict = {}
+
+        #warning, if Python / PyQt5 version is not development version
+        #pythonversion = sys.version.split()[0]
+        pythonversion = platform.python_version()
+        pyqtversion = PYQT_VERSION_STR
+        if pythonversion != "3.4.1" or pyqtversion != "5.5":
+            QMessageBox.information(self, "Python / PyQt version", "SESToPy was developed using Python 3.4.1 with PyQt 5.5 for the user interface. In case you face problems, they could be due to incompatibilities to the versions you are using. You are using Python %s and PyQt %s ." % (pythonversion, pyqtversion), QtWidgets.QMessageBox.Ok)
 
     #-----preparation functions-----------------------------------------------------------------------------------------
 

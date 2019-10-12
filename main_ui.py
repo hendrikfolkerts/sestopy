@@ -5912,7 +5912,7 @@ class Ui_MainWindow(object):
         self.baddsiblingnodem1.setToolTip(_translate("MainWindow", "Add SiblingNode"))
         self.bdeletenodem1.setToolTip(_translate("MainWindow", "Delete Node"))
         self.bexpandallm1.setToolTip(_translate("MainWindow", "Expand all"))
-        self.bcollapseallm1.setToolTip(_translate("MainWindow", "Collapse All"))
+        self.bcollapseallm1.setToolTip(_translate("MainWindow", "Collapse all"))
         self.gtreemodelm1.setTitle(_translate("MainWindow", "Node Specific Properties"))
         self.tbpropertiesm1.setItemText(self.tbpropertiesm1.indexOf(self.defaultm1), _translate("MainWindow", "Default"))
         self.lnameattributesm1.setText(_translate("MainWindow", "Name"))
