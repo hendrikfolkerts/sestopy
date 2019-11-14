@@ -185,7 +185,7 @@ class Prune:
         for i in range(len(paths)):
             for j in range(len(paths[i])):
                 node = paths[i][j][0]
-                if node.typeInfo() == "Aspect Node" or node.typeInfo() == "Maspect Node" and node.coupling != [] and node.coupling[0][6] != "":    #node.coupling[0][6] != "" then a coupling function is defined -> it is defined in the first coupling (there is only one)
+                if node.typeInfo() == "Aspect Node" or node.typeInfo() == "Maspect Node" and node.coupling and node.coupling[0][6] != "":    #node.coupling[0][6] != "" then a coupling function is defined -> it is defined in the first coupling (there is only one)
                     #if the couplings are defined st all and defined by a function
                     if node.coupling and node.coupling[0][6] != "":
                         #evaluate the SES variables for the coupling functions
