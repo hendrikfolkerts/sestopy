@@ -345,6 +345,25 @@ class SemanticConditions(QtCore.QObject):
 
     """check the content and evaluate the result, sesvarl is "" and semconl is "" if the validate process was started from the editor"""
     def validate(self, sesvarl="", semconl=""):
+
+        def execAsFun(data, svisc, ret, calculable):
+            # maybe it can be interpreted as code -> replace all variables with their values
+            # go through the svisc class variables
+            datarep = data
+            for var in svisc.__dict__:
+                # var     #is the variable
+                # svisc.__dict__[var]     #is the value of var
+                if var[0] != "_":  # only if the var does not begin with underscore -> SES variables may not have a name beginning with underscore
+                    datarep = re.sub('\\b' + re.escape(var) + '\\b', str(svisc.__dict__[var]), datarep)  # word boundary in Python regex -> \\b -> escape the \ with another \
+            # all existing variables are replaced with the values now -> execute
+            execute = "self.funretdata = " + datarep
+            try:
+                exec(execute)
+                ret = self.funretdata
+            except:
+                calculable = False
+            return ret, calculable
+
         # own class for SES variables
         class sesvarsinsemcons:
             pass
@@ -385,9 +404,10 @@ class SemanticConditions(QtCore.QObject):
                 calculable = True
                 ret = None
                 try:
+                    #try to interprete it as expression
                     ret = eval(data, globals(), svisc.__dict__)
                 except:
-                    calculable = False
+                    ret, calculable = execAsFun(data, svisc, ret, calculable)
 
                 self.updateModel(data, ret, calculable)
                 self.viewHint()
@@ -413,7 +433,7 @@ class SemanticConditions(QtCore.QObject):
                 try:
                     ret = eval(data, globals(), svisc.__dict__)
                 except:
-                    calculable = False
+                    ret, calculable = execAsFun(data, svisc, ret, calculable)
 
                 if calculable and ret:
                     retvalues.append("T")

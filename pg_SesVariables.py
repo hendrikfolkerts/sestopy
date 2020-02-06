@@ -270,11 +270,11 @@ class SesVariables(QtCore.QObject):
                 return ("", False, True)
 
             # check that the variable name is not 'PARENT', 'CHILDREN' or 'NUMREP'
-            if not edited and (name == 'PARENT' or name == 'CHILDREN' or name == 'NUMREP'):
-                QMessageBox.information(None, "Inserting not possible", "The variable name is 'PARENT', 'CHILDREN' or 'NUMREP'. Please enter another variable name.", QtWidgets.QMessageBox.Ok)
+            if not edited and (name == 'PARENT' or name == 'CHILDREN' or name == 'NUMREP' or name == 'PATH'):
+                QMessageBox.information(None, "Inserting not possible", "The variable name is 'PARENT', 'CHILDREN', 'NUMREP' or 'PATH'. Please enter another variable name.", QtWidgets.QMessageBox.Ok)
                 return ("", False, False)
-            elif edited and (name == 'PARENT' or name == 'CHILDREN' or name == 'NUMREP'):
-                QMessageBox.information(None, "Changing not possible", "The variable name is 'PARENT', 'CHILDREN' or 'NUMREP'. The variable is deleted.", QtWidgets.QMessageBox.Ok)
+            elif edited and (name == 'PARENT' or name == 'CHILDREN' or name == 'NUMREP' or name == 'PATH'):
+                QMessageBox.information(None, "Changing not possible", "The variable name is 'PARENT', 'CHILDREN', 'NUMREP' or 'PATH'. The variable is deleted.", QtWidgets.QMessageBox.Ok)
                 return ("", False, True)
 
             #check if the variable name is in Python syntax

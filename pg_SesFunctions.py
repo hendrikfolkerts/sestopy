@@ -153,11 +153,11 @@ class SesFunctions(QtCore.QObject):
             elif not convok and fconv == 3:
                 QMessageBox.warning(None, "Error importing SES function", "The function contains os.system. Please remove it.", QtWidgets.QMessageBox.Ok)
             elif not convok and fconv == 0:
-                QMessageBox.warning(None, "Error importing SES function", "The name could not be found or the name is 'PARENT', 'CHILDREN' or 'NUMREP'.", QtWidgets.QMessageBox.Ok)
+                QMessageBox.warning(None, "Error importing SES function", "The name could not be found or the name is 'PARENT', 'CHILDREN', 'NUMREP' or 'PATH'.", QtWidgets.QMessageBox.Ok)
             elif not convok and fconv == 1:
                 QMessageBox.warning(None, "Error importing SES function", "The function is not executable. Please check the syntax.", QtWidgets.QMessageBox.Ok)
             elif not convok and fconv == 2:
-                QMessageBox.warning(None, "Error importing SES function", "Neither the name was found nor is the function executable or the name is 'PARENT', 'CHILDREN' or 'NUMREP'. Please check the syntax.", QtWidgets.QMessageBox.Ok)
+                QMessageBox.warning(None, "Error importing SES function", "Neither the name was found nor is the function executable or the name is 'PARENT', 'CHILDREN', 'NUMREP' or 'PATH'. Please check the syntax.", QtWidgets.QMessageBox.Ok)
         except:
             QMessageBox.warning(None, "Can not read file", "Error reading \"%s\". Are you sure this is a Python py-file containing an SES function?" % str(dateiname[0]), QtWidgets.QMessageBox.Ok)
             return
@@ -198,7 +198,7 @@ class SesFunctions(QtCore.QObject):
                 wordlist = l.split("(")
                 wordlist = wordlist[0].split()
                 funname = wordlist[1]
-                if funname != "" and funname != 'PARENT' and funname != 'CHILDREN' and funname != 'NUMREP':
+                if funname != "" and funname != 'PARENT' and funname != 'CHILDREN' and funname != 'NUMREP' and funname != 'PATH':
                     namefound = True
         if not ("os.system" in fundata or "__import__('os').system" in fundata or '__import__("os").system' in fundata):
             try:

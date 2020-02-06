@@ -49,6 +49,7 @@ class Specrule:
         self.resz()
         #variables
         self.changeOnce = True
+        self.validateOnce = True
 
     def setUiInit(self):
         if self.tabnumber == 0:
@@ -171,7 +172,10 @@ class Specrule:
 
         #resize and validate
         self.resz()
-        self.validate()
+        if (self.validateOnce):
+            self.validateOnce = False
+            self.validate()
+            self.validateOnce = True
 
         #hide the uid column
         #self.tvspecruleview.setColumnHidden(1, True)
@@ -258,7 +262,8 @@ class Specrule:
                     self.specrulemodel.setItemData(index, dict)
             self.writeSpecRuleList(self.treeManipulate.treeSelectionModel.currentIndex(), True)
             self.resz()
-            self.validate()
+            if self.validateOnce:
+                self.validate()
             self.changeOnce = True
 
     """change the specrule when a node name was changed"""
@@ -305,7 +310,7 @@ class Specrule:
             return ("", False, True)
 
     """check the content and evaluate the result"""
-    def validate(self, sesvarl="", sesfunl="", nd=None):
+    def validate(self, sesvarl="", sesfunl="", nd=None, paths=None):
 
         # sub function
         def validateSpecRule(nd, svisr, sesfunl):
@@ -394,8 +399,8 @@ class Specrule:
                                         varvalues.append("")
 
                             # now get the function from the sesFunctions and try to find a match with the entry
-                            functionfound = False
-                            for sesfunvalue in sesfunl:
+                            sesfunlcopy = [d[:] for d in sesfunl]  # make a copy of the list and the list elements
+                            for sesfunvalue in sesfunlcopy:
                                 if sesfunvalue[0] == funname[0]:
                                     # get the vars of the found function match since the parameters in the function definition do not have to match the SES variable names
                                     funvarsfound = re.findall('def\s+' + re.escape(funname[0]) + '\(.*\)',
@@ -471,8 +476,11 @@ class Specrule:
                 #dataline = ' '.join(completeline)
 
                 #replace the evaluated SESvar / SESfuns expressions
+                dataline1 = ""
+                dataline2 = ""
                 for evfv in expressionvarfunval:
-                    dataline = re.sub(r"\b"+re.escape(evfv[0])+r"\b", str(evfv[1]), dataline)
+                    dataline1 = re.sub(r"\b"+re.escape(evfv[0])+r"\b", str(evfv[1]), dataline)
+                    dataline2 = re.sub(re.escape(evfv[0]), repr(evfv[1]), dataline)
 
                 # check if the whole expression can be interpreted now containing no more SES variables and functions
                 empty = False
@@ -481,9 +489,12 @@ class Specrule:
                 if dataline == "":
                     empty = True
                 try:
-                    ret = eval(dataline)
+                    ret = eval(dataline1)
                 except:
-                    calculable = False
+                    try:
+                        ret = eval(dataline2)
+                    except:
+                        calculable = False
 
                 emptyl.append(empty)
                 calculablel.append(calculable)
@@ -492,6 +503,43 @@ class Specrule:
                 rulel.append(rule)
 
             return emptyl, calculablel, funVarFoundl, retl, rulel
+
+        # sub function -> add the special variables (node specific variables) to the sesvars class
+        def addSpecialVars(sesvarsInRulesClass, currentNode=None, paths=None):
+            # find the current node, if it is not passed
+            if currentNode == None:
+                currentIndex = self.treeManipulate.treeSelectionModel.currentIndex()
+                currentNode = self.treeManipulate.treeModel.getNode(currentIndex)
+
+            # append PATH underscore variables
+            #if this function is started for pruning, paths is passed
+            if not paths:
+                paths = self.treeManipulate.findPaths()  # get the paths of the tree
+            # get the path with this node
+            path = []
+            i, j, nf = 0, 0, False
+            while i < len(paths) and not nf:
+                j = 0
+                while j < len(paths[i]) and not nf:
+                    if paths[i][j][0].getUid() == currentNode.getUid():
+                        nf = True
+                    j += 1
+                i += 1
+            i -= 1
+            j -= 1
+            k = 0
+            while k <= j:
+                path.append(paths[i][k])
+                k += 1
+            # the variable "path" now holds all nodes from the current node to the root
+            pathUnderscoreVar = {}
+            for pa in path:
+                if pa[0].typeInfo() == "Entity Node":
+                    for at in pa[0].attributes:
+                        if at[0].startswith("_"):
+                            pathUnderscoreVar.update({at[0]: at[1]})
+            # append all _ variables in the path of the current node
+            setattr(sesvarsInRulesClass, "PATH", pathUnderscoreVar)
 
         #here the validate function begins
 
@@ -511,6 +559,9 @@ class Specrule:
                 except:
                     pass    #do nothing, it stays a string
                 setattr(svisr, sesvarvalue[0], sesvarvalue[1])
+
+            # add special variables to the sesvar class
+            addSpecialVars(svisr)
 
             #get the SES functions
             sesfunl = self.treeManipulate.main.modellist[self.treeManipulate.main.activeTab][2].outputSesFunList()
@@ -555,6 +606,9 @@ class Specrule:
                 except:
                     pass    #do nothing, it stays a string
                 setattr(svisr, sesvarvalue[0], sesvarvalue[1])
+
+            # add special variables to the sesvar class
+            addSpecialVars(svisr, nd, paths)
 
             #the SES functions are given in the pass list
 

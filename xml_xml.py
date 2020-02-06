@@ -23,7 +23,7 @@ def toXML(nodelist, sespes, sesvarlist, semconlist, selconlist, sesfunlist):
     selcongroup = SubElement(globalsgroup, 'selcons')
     for selcon in selconlist:
         SubElement(selcongroup, 'selcon', {'startnode': selcon[0], 'stopnode': selcon[2], 'color': selcon[4], 'comment': selcon[5]})
-    sesfcngroup = SubElement(globalsgroup, 'sesfuns')
+    sesfcngroup = SubElement(globalsgroup, 'sesfcns')
     for sesfun in sesfunlist:
         SubElement(sesfcngroup, 'sesfcn', {'fcnname': sesfun[0],'fcn': sesfun[1],'language':'Python'})
 
@@ -214,7 +214,7 @@ def fromXML(xmlstr):
                             col = chil.attrib['color']
                             com = chil.attrib['comment']
                             selconlist.append([san, "startnodeuid", son, "stopnodeuid", col, com])
-                if ch.tag == "sesfuns":
+                if ch.tag == "sesfcns":
                     try:
                         chil = ch[0]    #no need to go through all tags sesfcn with a for loop -> all functions are found with the regex in re.findall(...)
                         if chil.tag == "sesfcn":

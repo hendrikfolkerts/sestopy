@@ -16,11 +16,18 @@ class AttribStandardItemModel(QtGui.QStandardItemModel):
     def __init__(self, parent=None):
         super(AttribStandardItemModel, self).__init__(parent)
 
+    #the second column is not editable, underscore attributes are not editable at all
     def flags(self, index):
+        #get the name (column 0)
+        it = self.item(index.row(), 0)
+        itname = it.data(QtCore.Qt.DisplayRole)
+        #now set the flags
         editflags = 0
-        if index.column() == 0 or index.column() == 1 or index.column() == 3:
+        if not itname.startswith('_') and (index.column() == 0 or index.column() == 1 or index.column() == 3):
             editflags = QtCore.Qt.ItemIsEditable
-        return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | editflags
+            return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable | editflags
+        else:
+            return QtCore.Qt.NoItemFlags
 
 class Attributes():
     def __init__(self, treeManipulate, tabnumber):
@@ -50,6 +57,7 @@ class Attributes():
         self.resz()
         #variables
         self.changeOnce = True  #prevent the changeAttrib() function from being executed twice (the second time by the model change)
+        self.validateOnce = True
 
     def setUiInit(self):
         if self.tabnumber == 0:
@@ -184,7 +192,10 @@ class Attributes():
             itemcomment = QStandardItem(lst[row][3])
             self.attribmodel.appendRow([itemnme, itemval, itemvarfun, itemcomment])
         self.resz()
-        self.validate()
+        if (self.validateOnce):
+            self.validateOnce = False
+            self.validate()
+            self.validateOnce = True
 
     """write -> the entries of the list in the current node"""
     def writeAttribList(self):
@@ -265,7 +276,8 @@ class Attributes():
                     self.deleteAttrib(self.attribselectionmodel.currentIndex().row(), True)
             self.writeAttribList()
             self.resz()
-            self.validate()
+            if self.validateOnce:
+                self.validate()
             self.changeOnce = True
 
     """check the name"""
@@ -299,11 +311,11 @@ class Attributes():
                 return ("", False, True)
 
             # check that the variable name is not 'PARENT', 'CHILDREN' or 'NUMREP'
-            if not edited and (name == 'PARENT' or name == 'CHILDREN' or name == 'NUMREP'):
-                QMessageBox.information(None, "Inserting not possible", "The variable name is 'PARENT', 'CHILDREN' or 'NUMREP'. Please enter another variable name.", QtWidgets.QMessageBox.Ok)
+            if not edited and (name == 'PARENT' or name == 'CHILDREN' or name == 'NUMREP' or name == 'PATH'):
+                QMessageBox.information(None, "Inserting not possible", "The variable name is 'PARENT', 'CHILDREN', 'NUMREP' or 'PATH'. Please enter another variable name.", QtWidgets.QMessageBox.Ok)
                 return ("", False, False)
-            elif edited and (name == 'PARENT' or name == 'CHILDREN' or name == 'NUMREP'):
-                QMessageBox.information(None, "Changing not possible", "The variable name is 'PARENT', 'CHILDREN' or 'NUMREP'. The variable is deleted.", QtWidgets.QMessageBox.Ok)
+            elif edited and (name == 'PARENT' or name == 'CHILDREN' or name == 'NUMREP' or name == 'PATH'):
+                QMessageBox.information(None, "Changing not possible", "The variable name is 'PARENT', 'CHILDREN', 'NUMREP' or 'PATH'. The variable is deleted.", QtWidgets.QMessageBox.Ok)
                 return ("", False, True)
 
             #check if the variable name is in Python syntax
@@ -381,7 +393,7 @@ class Attributes():
         self.resz()
 
     """color the value field if an SES variable or SES function can be interpreted"""
-    def validate(self, sesvarl="", sesfunl="", nd=None):
+    def validate(self, sesvarl="", sesfunl="", nd=None, paths=None):
 
         #sub function
         def validateAttr(nd, sviat, sesfunl):
@@ -445,7 +457,8 @@ class Attributes():
                                     varvalues.append("")
 
                         # now get the function from the sesFunctions and try to find a match with the entry
-                        for sesfunvalue in sesfunl:
+                        sesfunlcopy = [d[:] for d in sesfunl]  # make a copy of the list and the list elements
+                        for sesfunvalue in sesfunlcopy:
                             if sesfunvalue[0] == funname[0]:
                                 # get the vars of the found function match since the parameters in the function definition do not have to match the SES variable names
                                 funvarsfound = re.findall('def\s+' + re.escape(funname[0]) + '\(.*\)', sesfunvalue[1])
@@ -506,6 +519,43 @@ class Attributes():
 
             return attrlinel, isVarFunl, varFoundl, funFoundl, funVarFoundl, resl
 
+        # sub function -> add the special variables (node specific variables) to the sesvars class
+        def addSpecialVars(sesvarsInRulesClass, currentNode=None, paths=None):
+            # find the current node, if it is not passed
+            if currentNode == None:
+                currentIndex = self.treeManipulate.treeSelectionModel.currentIndex()
+                currentNode = self.treeManipulate.treeModel.getNode(currentIndex)
+
+            # append PATH underscore variables
+            #if this function is started for pruning, paths is passed
+            if not paths:
+                paths = self.treeManipulate.findPaths()  # get the paths of the tree
+            # get the path with this node
+            path = []
+            i, j, nf = 0, 0, False
+            while i < len(paths) and not nf:
+                j = 0
+                while j < len(paths[i]) and not nf:
+                    if paths[i][j][0].getUid() == currentNode.getUid():
+                        nf = True
+                    j += 1
+                i += 1
+            i -= 1
+            j -= 1
+            k = 0
+            while k <= j:
+                path.append(paths[i][k])
+                k += 1
+            # the variable "path" now holds all nodes from the current node to the root
+            pathUnderscoreVar = {}
+            for pa in path:
+                if pa[0].typeInfo() == "Entity Node":
+                    for at in pa[0].attributes:
+                        if at[0].startswith("_"):
+                            pathUnderscoreVar.update({at[0]: at[1]})
+            # append all _ variables in the path of the current node
+            setattr(sesvarsInRulesClass, "PATH", pathUnderscoreVar)
+
         #here the validate function begins
 
         # own class for SES variables
@@ -524,6 +574,9 @@ class Attributes():
                 except:
                     pass  # do nothing, it stays a string
                 setattr(sviat, sesvarvalue[0], sesvarvalue[1])
+
+            # add special variables to the sesvar class
+            addSpecialVars(sviat)
 
             #get the SES functions
             sesfunl = self.treeManipulate.main.modellist[self.treeManipulate.main.activeTab][2].outputSesFunList()
@@ -549,6 +602,9 @@ class Attributes():
                 except:
                     pass  # do nothing, it stays a string
                 setattr(sviat, sesvarvalue[0], sesvarvalue[1])
+
+            # add special variables to the sesvar class
+            addSpecialVars(sviat, nd, paths)
 
             #the SES functions are given in the pass list
 

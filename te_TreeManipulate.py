@@ -1368,7 +1368,7 @@ class TreeManipulate(QtCore.QObject):   #for defining a signal the class must be
             areBrothers = True
         return areBrothers
 
-    #checks-------------------------------------------------------------------------------------------------------------
+    #checks and additions-----------------------------------------------------------------------------------------------
 
     def checkAxiomsCurrentNodeNameChanged(self):   #name or property of the node changed
         self.checkAxiomsUpdate("nc")
@@ -1381,6 +1381,7 @@ class TreeManipulate(QtCore.QObject):   #for defining a signal the class must be
         self.checkAxiomsUpdate("pi")
 
     """
+    when a selection is changed, the name is changed or the type is changed, add, change or delete the _NameOfTheNode attribute at entities following multi-aspects
     when a node is changed in name, make sure, other nodes with the old name are changed as well (have the same name, but not the same uid)
     when a node is changed in name or the selection is changed:
         check the name (no axiom)
@@ -1401,6 +1402,45 @@ class TreeManipulate(QtCore.QObject):   #for defining a signal the class must be
     def checkAxiomsUpdate(self, kind, nameBeforeTypeChange="", positionToInsert=-1, indexOfNewChild=QModelIndex, subSibling="su", nameDeleted=""):
         if self.doOnceChecks:
             self.doOnceChecks = False
+
+            #append an attribute _NameOfTheNode to a child entity of an multi-aspect node if it has not this attribute yet -> deal with changed names as well
+
+            if kind == "nc" or kind == "sc" or kind == "tc":
+                try:
+                    wNode = self.treeModel.getNode(self.currentSelectedIndex)
+                    ndlst = []
+                    todo = 0
+                    if kind in ["nc", "sc"] and wNode.parent() and wNode.parent().typeInfo() == "Maspect Node": #when name or selection is changed, the node is clicked -> the parent must be an maspeect (if it exists at all)
+                        ndlst = [wNode]
+                        todo = 1
+                    elif kind == "tc" and wNode.typeInfo() == "Maspect Node":   #when type is changed, the parent is clicked -> the clicked node must be an maspeect
+                        ndlst = wNode.childrenlist()
+                        todo = 2
+                    elif kind == "tc" and wNode.typeInfo() != "Maspect Node":   #when type is changed, the parent is clicked -> the clicked node must be an maspeect
+                        ndlst = wNode.childrenlist()
+                        todo = 3
+                    for ndel in ndlst:
+                        atlst = ndel.attributes
+                        if todo == 1 and atlst and atlst[0][0].startswith("_"):
+                            #attribute exists, check if the name is correct (the node could have been renamed)
+                            if atlst[0][0] != "_" + wNode.name():
+                                atlst[0][0] = "_" + wNode.name()
+                                #updaten in the attribmodel to show changes in ui
+                                index = self.at.attribmodel.index(0, 0)
+                                self.at.attribmodel.setData(index, "_" + wNode.name())
+                        elif todo in [1, 2]:
+                            #insert the attribute
+                            atlst.insert(0, ['_' + wNode.name(), '0', '', 'internal variable'])
+                            self.at.attribmodel.removeRows(0, self.at.attribmodel.rowCount())   #delete all rows
+                            self.at.readAttribList(atlst)   #read the new rows according to atlst
+                        elif todo == 3:
+                            #delete the attribute if it is an _ attribute
+                            if atlst and atlst[0][0].startswith("_"):
+                                del atlst[0]
+                except:
+                    pass
+
+            #do the other checks / additions
 
             #get current node (which has just been changed) and its index (if the selection has changed, the changed node is in the lastSelectedIndex)
             currentNode = self.treeModel.getNode(self.currentSelectedIndex)

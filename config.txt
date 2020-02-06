@@ -1,4 +1,5 @@
 #!LastOpenedFiles!#
-P:/DATEN_in_use/Promotion/Promotion_Programme/SESMB_Infrastructure/SESToPy/Examples/Watershed/Watershed.jsonsestree
+P:/DATEN_in_use/Promotion/Promotion_Programme/SESMB_Infrastructure/SESToPy/Examples/MASP_with_PATH/5_Priority_wih_PATH/5_Priority_wih_PATH.jsonsestree
+P:/DATEN_in_use/Promotion/Promotion_Programme/SESMB_Infrastructure/SESToPy/Examples/MASP_with_PATH/4_MA_S_MA_MA/MA_S_MA_MA.jsonsestree
 P:/DATEN_in_use/Promotion/Promotion_Programme/SESMB_Infrastructure/SESToPy/Examples/Example_03.jsonsestree
 P:/DATEN_in_use/Promotion/Promotion_Programme/SESMB_Infrastructure/SESToPy/Examples/Example_01.jsonsestree

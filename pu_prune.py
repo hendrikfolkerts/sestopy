@@ -88,15 +88,22 @@ class Prune:
                         sesvarlist[i][1] = str(sesvarlist[i][1])
 
                     #evaluate the replaced SES variables and functions for the aspectrules and set it in the paths
+                    #do NOT do if the attribute value contains PATH -> then underscore variables are accessed, which are only assigned when multi-aspects are expanded during pruning
                     for i in range(len(paths)):
                         for j in range(len(paths[i])):
                             node = paths[i][j][0]
                             if node.typeInfo() == "Aspect Node" or node.typeInfo() == "Maspect Node":
                                 #evaluate the replaced SES variables and functions for the aspectrules
                                 ar = Aspectrule     #create object
-                                aspruletf = ar.validate(self, sesvarlist, sesfunlist, node) #evaluate the aspectrules with the new SES variables
+                                aspruletf = ar.validate(self, sesvarlist, sesfunlist, node, False, paths) #evaluate the aspectrules with the new SES variables
                                 if aspruletf != "":
-                                    paths[i][j][0].aspectrule[0][3] = aspruletf     #replace the result with the result for the new SES variables
+                                    elWithPath = re.findall('\\b' + re.escape('PATH') + '\\b', paths[i][j][0].aspectrule[0][2])  #find PATH
+                                    elWithQuotPath = re.findall('[\'\"]\\b' + re.escape('PATH') + '\\b[\'\"]', paths[i][j][0].aspectrule[0][2]) #find 'PATH' (with quotes -> string)
+                                    #if PATH is a variable or in a function, then the result is not inserted (PATH as variable: there are more PATH than 'PATH' (with quotes -> string))
+                                    if len(elWithPath) != 0 and len(elWithPath) > len(elWithQuotPath):
+                                        pass
+                                    else:
+                                        paths[i][j][0].aspectrule[0][3] = aspruletf     #replace the result with the result for the new SES variables
 
                                 nodelist = self.replaceSesVarFunAspr(self, node, nodelist)  #do so in the nodelist
 
@@ -104,15 +111,22 @@ class Prune:
                         sesvarlist[i][1] = str(sesvarlist[i][1])
 
                     #evaluate the replaced SES variables and functions for the specrules and set it in the paths
+                    #do NOT do if the attribute value contains PATH -> then underscore variables are accessed, which are only assigned when multi-aspects are expanded during pruning
                     for i in range(len(paths)):
                         for j in range(len(paths[i])):
                             node = paths[i][j][0]
                             if node.typeInfo() == "Spec Node":
                                 #evaluate the replaced SES variables and functions for the specrules
                                 sr = Specrule
-                                specruletfl = sr.validate(self, sesvarlist, sesfunlist, node)    #evaluate the specrules with the new SES variables
+                                specruletfl = sr.validate(self, sesvarlist, sesfunlist, node, paths)    #evaluate the specrules with the new SES variables
                                 for k in range(len(specruletfl)):
-                                    paths[i][j][0].specrule[k][3] = specruletfl[k]        #replace the result with the result for the new SES variables
+                                    elWithPath = re.findall('\\b' + re.escape('PATH') + '\\b', paths[i][j][0].specrule[k][2])   #find PATH
+                                    elWithQuotPath = re.findall('[\'\"]\\b' + re.escape('PATH') + '\\b[\'\"]', paths[i][j][0].specrule[k][2])   #find 'PATH' (with quotes -> string)
+                                    #if PATH is a variable or in a function, then the result is not inserted (PATH as variable: there are more PATH than 'PATH' (with quotes -> string))
+                                    if len(elWithPath) != 0 and len(elWithPath) > len(elWithQuotPath):
+                                        pass
+                                    else:
+                                        paths[i][j][0].specrule[k][3] = specruletfl[k]        #replace the result with the result for the new SES variables
 
                                 nodelist = self.replaceSesVarFunSpecr(self, node, nodelist) #do so in the nodelist
 
@@ -129,16 +143,23 @@ class Prune:
         #now replace the SES variables and functions with their values and set it in the paths -> this has to be done when pruning using the editor or not
 
         #in entity nodes -> attributes
+        #do NOT do if the attribute value contains PATH -> then underscore variables are accessed, which are only assigned when multi-aspects are expanded during pruning
         for i in range(len(paths)):
             for j in range(len(paths[i])):
                 node = paths[i][j][0]
                 if node.typeInfo() == "Entity Node":
                     #evaluate the SES variables for the attributes
                     at = Attributes
-                    attribres = at.validate(self, sesvarlist, sesfunlist, node)     #evaluate the attributes (replace possible SES variables or functions)
+                    attribres = at.validate(self, sesvarlist, sesfunlist, node, paths)     #evaluate the attributes (replace possible SES variables or functions)
                     for k in range(len(attribres)):
-                        paths[i][j][0].attributes[k][1] = attribres[k]  #replace the SES variables or functions with the result
-                        paths[i][j][0].attributes[k][2] = ""    #clear the field which indicates whether this is a SES function or SES variable
+                        elWithPath = re.findall('\\b' + re.escape('PATH') + '\\b', paths[i][j][0].attributes[k][1]) #find PATH
+                        #elWithQuotPath not needed, since in attributes there is a field showing if it is a variable or a function -> attributes[k][2]
+                        #if PATH is a variable or in a function, then the value is not replaced with the result
+                        if len(elWithPath) != 0 and paths[i][j][0].attributes[k][2] != "":
+                            pass
+                        else:
+                            paths[i][j][0].attributes[k][1] = attribres[k]  #replace the SES variables or functions with the result
+                            paths[i][j][0].attributes[k][2] = ""    #clear the field which indicates whether this is a SES function or SES variable
 
                     nodelist = self.replaceSesVarFunAttr(self, node, nodelist)   #do so in the nodelist
 
@@ -146,17 +167,24 @@ class Prune:
             sesvarlist[i][1] = str(sesvarlist[i][1])
 
         #in aspect and maspect nodes -> priority
+        #do NOT do if the attribute value contains PATH -> then underscore variables are accessed, which are only assigned when multi-aspects are expanded during pruning
         for i in range(len(paths)):
             for j in range(len(paths[i])):
                 node = paths[i][j][0]
                 if node.typeInfo() == "Aspect Node" or node.typeInfo() == "Maspect Node":
                     #evaluate the SES variables for the priority
                     pr = Priority
-                    priores, allOk = pr.validate(self, sesvarlist, sesfunlist, node)     #evaluate the priority (replace possible SES variables or functions)
-                    #give a warning, that the priority value=1 is taken, if the value in the priority field could not be interpreted
-                    if not allOk:
-                        QMessageBox.information(None, "Assuming...", "The priority of the node with the name "+paths[i][j][0].name()+" (uid: "+str(paths[i][j][0].getUid())+") does not evaluate to an integer. Assuming a priority value of 1.", QtWidgets.QMessageBox.Ok)
-                    paths[i][j][0].priority = priores  #replace the SES variables or functions with the result
+                    priores, allOk = pr.validate(self, sesvarlist, sesfunlist, node, False, paths)     #evaluate the priority (replace possible SES variables or functions)
+                    elWithPath = re.findall('\\b' + re.escape('PATH') + '\\b', paths[i][j][0].priority)  #find PATH
+                    elWithQuotPath = re.findall('[\'\"]\\b' + re.escape('PATH') + '\\b[\'\"]', paths[i][j][0].priority)  #find 'PATH' (with quotes -> string)
+                    #if PATH is a variable or in a function, then the value is not replaced with the result (PATH as variable: there are more PATH than 'PATH' (with quotes -> string))
+                    if len(elWithPath) != 0 and len(elWithPath) > len(elWithQuotPath):
+                        pass
+                    else:
+                        #give a warning, that the priority value=1 is taken, if the value in the priority field could not be interpreted
+                        if not allOk:
+                            QMessageBox.information(None, "Assuming...", "The priority of the node with the name "+paths[i][j][0].name()+" (uid: "+str(paths[i][j][0].getUid())+") does not evaluate to an integer. Assuming a priority value of 1.", QtWidgets.QMessageBox.Ok)
+                        paths[i][j][0].priority = priores  #replace the SES variables or functions with the result
 
                     nodelist = self.replaceSesVarFunPrio(self, node, nodelist)  #do so in the nodelist
 
@@ -164,17 +192,24 @@ class Prune:
             sesvarlist[i][1] = str(sesvarlist[i][1])
 
         #in maspect nodes -> number of replication
+        #do NOT do if the attribute value contains PATH -> then underscore variables are accessed, which are only assigned when multi-aspects are expanded during pruning
         for i in range(len(paths)):
             for j in range(len(paths[i])):
                 node = paths[i][j][0]
                 if node.typeInfo() == "Maspect Node":
                     #evaluate the SES variables for the number of replication
                     nr = NumberReplication
-                    numrepres, allOk = nr.validate(self, sesvarlist, sesfunlist, node)     #evaluate the number of replication (replace possible SES variables or functions)
-                    #give a warning, that the numRep value=1 is taken, if the value in the numRep field could not be interpreted
-                    if not allOk:
-                        QMessageBox.information(None, "Assuming...", "The number of replication of the node with the name "+paths[i][j][0].name()+" (uid: "+str(paths[i][j][0].getUid())+") does not evaluate to an integer. Assuming a number of replications value of 1.", QtWidgets.QMessageBox.Ok)
-                    paths[i][j][0].number_replication = numrepres  #replace the SES variables or functions with the result
+                    numrepres, allOk = nr.validate(self, sesvarlist, sesfunlist, node, False, paths)     #evaluate the number of replication (replace possible SES variables or functions)
+                    elWithPath = re.findall('\\b' + re.escape('PATH') + '\\b', paths[i][j][0].number_replication)  #find PATH
+                    elWithQuotPath = re.findall('[\'\"]\\b' + re.escape('PATH') + '\\b[\'\"]', paths[i][j][0].number_replication)  #find 'PATH' (with quotes -> string)
+                    #if PATH is a variable or in a function, then the value is not replaced with the result (PATH as variable: there are more PATH than 'PATH' (with quotes -> string))
+                    if len(elWithPath) != 0 and len(elWithPath) > len(elWithQuotPath):
+                        pass
+                    else:
+                        #give a warning, that the numRep value=1 is taken, if the value in the numRep field could not be interpreted
+                        if not allOk:
+                            QMessageBox.information(None, "Assuming...", "The number of replications of the node with the name "+paths[i][j][0].name()+" (uid: "+str(paths[i][j][0].getUid())+") does not evaluate to an integer. Assuming a number of replications value of 1.", QtWidgets.QMessageBox.Ok)
+                        paths[i][j][0].number_replication = numrepres  #replace the SES variables or functions with the result
 
                     nodelist = self.replaceSesVarFunNumRep(self, node, nodelist)    #do so in the nodelist
 
@@ -182,20 +217,26 @@ class Prune:
             sesvarlist[i][1] = str(sesvarlist[i][1])
 
         #in aspect and maspect nodes -> coupling functions (if there is a function defined for the node) -> after that coupling functions can be handled like couplings defined in the list
+        #do NOT do if the attribute value contains PATH -> then underscore variables are accessed, which are only assigned when multi-aspects are expanded during pruning
         for i in range(len(paths)):
             for j in range(len(paths[i])):
                 node = paths[i][j][0]
                 if node.typeInfo() == "Aspect Node" or node.typeInfo() == "Maspect Node" and node.coupling and node.coupling[0][6] != "":    #node.coupling[0][6] != "" then a coupling function is defined -> it is defined in the first coupling (there is only one)
-                    #if the couplings are defined st all and defined by a function
+                    #if the couplings are defined at all and defined by a function
                     if node.coupling and node.coupling[0][6] != "":
                         #evaluate the SES variables for the coupling functions
                         cg = Coupling
-                        coupres, allOk = cg.validate(self, sesvarlist, sesfunlist, node)     #evaluate the coupling function (replace SES variables and functions)
-                        #give a warning, that they have to be checked again, if they are not okay
-                        if not allOk:
-                            QMessageBox.information(None, "Warning", "The couplings of the node with the name " + paths[i][j][0].name() + " (uid: " + str(paths[i][j][0].getUid()) + ") have to be checked again.", QtWidgets.QMessageBox.Ok)
-                        #place the result of the coupling function as if the couplings were defined by a list
-                        paths[i][j][0].coupling = coupres
+                        coupres, allOk = cg.validate(self, sesvarlist, sesfunlist, node, paths)     #evaluate the coupling function (replace SES variables and functions)
+                        elWithPath = re.findall('\\b' + re.escape('PATH') + '\\b', paths[i][j][0].coupling[0][6])  #find PATH
+                        elWithQuotPath = re.findall('[\'\"]\\b' + re.escape('PATH') + '\\b[\'\"]', paths[i][j][0].coupling[0][6])  #find 'PATH' (with quotes -> string)
+                        #if PATH is a variable or in a function, then the value is not replaced with the result (PATH as variable: there are more PATH than 'PATH' (with quotes -> string))
+                        if len(elWithPath) != 0 and len(elWithPath) > len(elWithQuotPath):
+                            pass
+                        else:
+                            #give a warning, that they have to be checked again, if they are not okay
+                            if not allOk:
+                                QMessageBox.information(None, "Warning", "The couplings of the node with the name " + paths[i][j][0].name() + " (uid: " + str(paths[i][j][0].getUid()) + ") have to be checked again.", QtWidgets.QMessageBox.Ok)
+                            paths[i][j][0].coupling = coupres   #place the result of the coupling function as if the couplings were defined by a list
 
                         nodelist = self.replaceSesVarFunCpl(self, node, nodelist)  #do so in the nodelist
 
@@ -203,6 +244,8 @@ class Prune:
             sesvarlist[i][1] = str(sesvarlist[i][1])
 
         #the data is evaluated for the (maybe new) SES variables and the SES functions -> the pruning can be done now
+        #-> but the data is NOT evaluated yet, if the rule/attribute/priority/numrep/couplingfunction contains PATH
+        #-> then underscore variables are needed, which are only assigned when multi-aspects are expanded during pruning
 
         #only continue if all data was found
         if datafound:
@@ -221,7 +264,7 @@ class Prune:
                     #print("fields added")
 
                     #now prune and return the nodelist and what it is now (incompletely pruned PES or PES)
-                    nodelist, sespestype = self.prune(self, nodelist, paths)
+                    nodelist, sespestype = self.prune(self, nodelist, paths, sesvarlist, sesfunlist)
                     print("OK - The pruning is done successfully.")
 
                     #build the new information for the PES -> the type of the PES (incompletely pruned PES or PES) from the prune function and the description from the SES
@@ -475,6 +518,10 @@ class Prune:
             if empty or isemptymodel:
                 self.main.modellist[(num - 1)][3].fromSave(nodelist)
                 self.main.modellist[(num - 1)][0].fromSave(sespes)
+                #make the sesvars to strings again, then import
+                for svarl in range(len(sesvarlist)):
+                    for svl in range(len(sesvarlist[svarl])):
+                        sesvarlist[svarl][svl] = str(sesvarlist[svarl][svl])
                 self.main.modellist[(num - 1)][1].fromSave(sesvarlist)
                 #it cannot be an SES anymore
                 if sespes[0] == "ipes":
@@ -497,7 +544,7 @@ class Prune:
     #all functions for pruning------------------------------------------------------------------------------------------
 
     #the pruning function
-    def prune(self, nodelist, paths):
+    def prune(self, nodelist, paths, sesvarlist, sesfunlist):
         #go through paths and prune -> change the nodelist according to the information given in the nodes in the paths
         sespestype = "pes"
         nodeUidsPruned = [] #a list of nodeuids which are pruned already so that no node is pruned twice
@@ -514,7 +561,7 @@ class Prune:
             lenpathsel = len(paths[el]) #needed to do so since for a Maspect node the length can be changed
             nd = 0
             while nd < lenpathsel:
-                nodeUidsPruned, paths, nodelist, lenpaths, changeSesPes, uidIndexDict = self.findDoPruning(self, nodeUidsPruned, paths, el, nd, nodelist, lenpaths, uidIndexDict)
+                nodeUidsPruned, paths, nodelist, lenpaths, changeSesPes, uidIndexDict = self.findDoPruning(self, nodeUidsPruned, paths, el, nd, nodelist, lenpaths, uidIndexDict, sesvarlist, sesfunlist)
                 #if the pruning of this just taken node was not successful changeSesPes will be True saying the SES could not be pruned completely at this node
                 if changeSesPes:
                     sespestype = "ipes"
@@ -524,7 +571,7 @@ class Prune:
         return nodelist, sespestype
 
     #decide which pruning to take and do it
-    def findDoPruning(self, nodeUidsPruned, paths, el, nd, nodelist, lenpaths, uidIndexDict):
+    def findDoPruning(self, nodeUidsPruned, paths, el, nd, nodelist, lenpaths, uidIndexDict, sesvarlist, sesfunlist):
         #set this variable to True if no decision could be made or an error occured -> so the SES cannot be pruned completely
         couldNotPrune = []
         #only if this node is not already excluded (children of the pruned nodes are not in nodeUidsPruned so this cannot be taken)
@@ -537,10 +584,19 @@ class Prune:
             nodelistbrotherindices = self.findBrothersInNodelist(self, paths[el][nd][0].getUid(), nodelist, uidIndexDict)
 
             if nodetype == "Entity Node":
+                # calculate attributes with PATH
+                nodelist = self.calcAttWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist)
                 # for an entity node no decision has to be made
-                pass
 
             elif nodetype == "Aspect Node" and (paths[el][nd][0].getUid() not in nodeUidsPruned):
+                # calculate aspectrules with PATH
+                nodelist = self.calcAsrWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist, uidIndexDict)
+                # calculate priority with PATH
+                nodelist = self.calcPrioWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist)
+                # calculate couplings with PATH
+                nodelist = self.calcCoupWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist)
+                # now make the decisions
+
                 # pruning pattern 1 - if the node is an aspect node and there is no brother at all there is nothing to do, the node stays in the tree
                 if len(pathsbrothers) == 1 and len(nodelistbrotherindices) == 1:  # the brothers can be of any type
                     pass
@@ -636,6 +692,10 @@ class Prune:
                             nodeUidsPruned = nodeUidsPruned + prunedUids
 
             elif nodetype == "Spec Node" and (paths[el][nd][0].getUid() not in nodeUidsPruned):
+                # calculate specrules with PATH
+                self.calcSpeWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist)
+                # now make the decisions
+
                 # pruning pattern 3, 4, 5, 6
                 paths, nodelist, noSpecruleInfo = self.pruneSpec(self, paths, el, nd, nodelist, uidIndexDict)
                 if noSpecruleInfo:
@@ -644,8 +704,19 @@ class Prune:
                 nodeUidsPruned.append(paths[el][nd][0].getUid())
 
             elif nodetype == "Maspect Node" and (paths[el][nd][0].getUid() not in nodeUidsPruned):
+                # calculate aspectrules with PATH
+                nodelist = self.calcAsrWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist, uidIndexDict)
+                # calculate priority with PATH
+                nodelist = self.calcPrioWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist)
+                # calculate couplings with PATH
+                nodelist = self.calcCoupWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist)
+                # calculate numrep with PATH
+                nodelist = self.calcNrepWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist)
+                # now make decisions
+                # the underscore variables in PATH are assigned in the pruneMaspect function
+
                 # pruning pattern 9
-                paths, nodelist, uidIndexDict = self.pruneMaspect(self, paths, el, nd, nodelist, nodeUidsPruned, lenpaths, uidIndexDict)
+                paths, nodelist, uidIndexDict = self.pruneMaspect(self, paths, el, nd, nodelist, nodeUidsPruned, lenpaths, uidIndexDict, sesvarlist, sesfunlist)
                 lenpaths = len(paths)  # new paths are added, so the variable needs to be updated
                 # lenpathsel = len(paths[el])    #the existing path length are not changed, so this is not needed
                 nodeUidsPruned.append(paths[el][nd][0].getUid())
@@ -654,6 +725,76 @@ class Prune:
 
         return nodeUidsPruned, paths, nodelist, lenpaths, couldNotPrune, uidIndexDict
 
+    #calculate attributes with PATH
+    def calcAttWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist):
+        at = Attributes
+        attribres = at.validate(self, sesvarlist, sesfunlist, paths[el][nd][0], paths)  # evaluate the attributes with the PATH (replace possible SES variables or functions)
+        for k in range(len(attribres)):
+            paths[el][nd][0].attributes[k][1] = attribres[k]  # replace the SES variables or functions with the result
+            paths[el][nd][0].attributes[k][2] = ""  # clear the field which indicates whether this is a SES function or SES variable
+        nodelist = self.replaceSesVarFunAttr(self, paths[el][nd][0], nodelist)
+        return nodelist
+
+    #calculate aspecrules with PATH
+    def calcAsrWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist, uidIndexDict):
+        ar = Aspectrule
+        aspruletf = ar.validate(self, sesvarlist, sesfunlist, paths[el][nd][0], False, paths)  # evaluate the aspectrules with the PATH
+        if aspruletf != "":
+            paths[el][nd][0].aspectrule[0][3] = aspruletf  # replace the result with the calculated result
+            if aspruletf == "F":
+                nodelist = self.nodeNotInPes(self, paths[el][nd][0], nodelist, uidIndexDict)  # deactivate the not selected node and the children below
+                nodelist = self.childrenNotInPes(self, paths[el][nd][0], paths, nodelist, uidIndexDict)
+        nodelist = self.replaceSesVarFunAspr(self, paths[el][nd][0], nodelist)  # do so in the nodelist
+        return nodelist
+
+    #calculate specrules with PATH
+    def calcSpeWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist):
+        sr = Specrule
+        specruletfl = sr.validate(self, sesvarlist, sesfunlist, paths[el][nd][0], paths)  # evaluate the specrules with the PATH
+        for k in range(len(specruletfl)):
+            paths[el][nd][0].specrule[k][3] = specruletfl[k]  # replace the result with the result for the new SES variables
+        nodelist = self.replaceSesVarFunSpecr(self, paths[el][nd][0], nodelist)  # do so in the nodelist
+        return nodelist
+
+    #calculate priority with PATH
+    def calcPrioWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist):
+        pr = Priority
+        priores, allOk = pr.validate(self, sesvarlist, sesfunlist, paths[el][nd][0], False, paths)  # evaluate the priority with the PATH (replace possible SES variables or functions)
+        elWithPath = re.findall('\\b' + re.escape('PATH') + '\\b', paths[el][nd][0].priority)  #find PATH, if it is still there
+        if len(elWithPath) != 0:
+            # give a warning, that the priority value=1 is taken, if the value in the priority field could not be interpreted
+            if not allOk:
+                QMessageBox.information(None, "Assuming...", "The priority of the node with the name " + paths[el][nd][0].name() + " (uid: " + str(paths[el][nd][0].getUid()) + ") does not evaluate to an integer. Assuming a priority value of 1.", QtWidgets.QMessageBox.Ok)
+            paths[el][nd][0].priority = priores  # replace the SES variables or functions with the result
+            nodelist = self.replaceSesVarFunPrio(self, paths[el][nd][0], nodelist)  # do so in the nodelist
+        return nodelist
+
+    #calculate couplings with PATH
+    def calcCoupWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist):
+        if paths[el][nd][0].coupling and paths[el][nd][0].coupling[0][6] != "": #if the couplings are defined at all and defined by a function
+            cg = Coupling
+            coupres, allOk = cg.validate(self, sesvarlist, sesfunlist, paths[el][nd][0], paths)  # evaluate the coupling function with the PATH (replace SES variables and functions)
+            elWithPath = re.findall('\\b' + re.escape('PATH') + '\\b', paths[el][nd][0].coupling[0][6])  # find PATH, if it is still there
+            if len(elWithPath) != 0:
+                # give a warning, that they have to be checked again, if they are not okay
+                if not allOk:
+                    QMessageBox.information(None, "Warning", "The couplings of the node with the name " + paths[el][nd][0].name() + " (uid: " + str(paths[el][nd][0].getUid()) + ") have to be checked again.", QtWidgets.QMessageBox.Ok)
+                paths[el][nd][0].coupling = coupres  # place the result of the coupling function as if the couplings were defined by a list
+                nodelist = self.replaceSesVarFunCpl(self, paths[el][nd][0], nodelist)  # do so in the nodelist
+        return nodelist
+
+    #calculate numRep with PATH
+    def calcNrepWiPath(self, paths, el, nd, nodelist, sesvarlist, sesfunlist):
+        nr = NumberReplication
+        numrepres, allOk = nr.validate(self, sesvarlist, sesfunlist, paths[el][nd][0], False, paths)  # evaluate the number of replication with the PATH (replace possible SES variables or functions)
+        elWithPath = re.findall('\\b' + re.escape('PATH') + '\\b', paths[el][nd][0].number_replication)  # find PATH
+        if len(elWithPath) != 0:
+            # give a warning, that the numRep value=1 is taken, if the value in the numRep field could not be interpreted
+            if not allOk:
+                QMessageBox.information(None, "Assuming...", "The number of replications of the node with the name " + paths[el][nd][0].name() + " (uid: " + str(paths[el][nd][0].getUid()) + ") does not evaluate to an integer. Assuming a number of replications value of 1.", QtWidgets.QMessageBox.Ok)
+            paths[el][nd][0].number_replication = numrepres  # replace the SES variables or functions with the result
+            nodelist = self.replaceSesVarFunNumRep(self, paths[el][nd][0], nodelist)  # do so in the nodelist
+        return nodelist
 
     #prune aspectsiblings (using aspectrules)
     def pruneAspect(self, paths, el, nd, nodelist, deactivateAnyway=False, uidIndexDict=None):
@@ -807,7 +948,7 @@ class Prune:
         return paths, nodelist, noSpecruleInfo
 
     #prune a maspectnode
-    def pruneMaspect(self, paths, el, nd, nodelist, nodeUidsPruned, lenpaths, uidIndexDict):
+    def pruneMaspect(self, paths, el, nd, nodelist, nodeUidsPruned, lenpaths, uidIndexDict, sesvarlist, sesfunlist):
         def findNextUid():
             #list all uids
             highestUid = 0
@@ -985,6 +1126,13 @@ class Prune:
             if nuid:  #if the uid was found in the couplings
                 nodelist[nindex[0]][8][coup][4] = nuid
 
+        #in the childrenlist assign the underscore variables for each child
+        for inde in childrenMaspectIndices:     #indices of the children in the childrenlist
+            for ind in range(len(childrenlist[inde][6])):
+                if childrenlist[inde][6][ind][0].startswith("_"):
+                    namesplit = childrenlist[inde][2].split("_")   #name
+                    childrenlist[inde][6][ind][1] = namesplit[-1]  #assign the number
+
         #put the childrenlist in the nodelist again (at the right index (parentindex+1+c))
         for c in range(len(childrenlist)):
             nodelist.insert(nindex[0]+1+c, childrenlist[c])
@@ -1017,7 +1165,7 @@ class Prune:
         paths = self.findPathsFromNodelist(self, nodelist)
 
         #now look whether there are aspects on the same layer so a decision has to be found -> simply call the algorithm again (for this layer since el and nd stay the same)
-        self.findDoPruning(self, nodeUidsPruned, paths, el, nd, nodelist, lenpaths, uidIndexDict)
+        self.findDoPruning(self, nodeUidsPruned, paths, el, nd, nodelist, lenpaths, uidIndexDict, sesvarlist, sesfunlist)
 
         return paths, nodelist, uidIndexDict
 

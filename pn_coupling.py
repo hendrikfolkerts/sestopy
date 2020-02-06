@@ -837,7 +837,90 @@ class Coupling:
                                                     QtWidgets.QMessageBox.Ok)
 
     """color the fields depending on the content"""
-    def validate(self, sesvarl="", sesfunl="", nd=None):
+    def validate(self, sesvarl="", sesfunl="", nd=None, paths=None):
+
+        # sub function -> execute a function
+        def execFunction(svicp, sesfunl, value, cplvalue, funFound):
+            # check that the expression is an SES function
+            if "(" in value and ")" in value:
+                funname = value.split("(")
+                funname[1] = funname[1][0:-1]
+                vars = funname[1].split(",")
+                if vars[0] == '':
+                    del vars[0]
+                for v in range(len(vars)):
+                    vars[v] = vars[v].strip()
+                # check if the parameters are SES variables and get the values
+                varvalues = []
+                for v in vars:
+                    try:
+                        vv = ast.literal_eval(v)
+                        varvalues.append(vv)
+                    except:
+                        # the value is no Python value so it could be the name of an SES variable or function
+                        # check if the expression is an SES variable
+                        try:
+                            ret = eval(v, globals(), svicp.__dict__)
+                            # replace the name with the value
+                            varvalues.append(ret)
+                        except:
+                            varvalues.append("")
+
+                # now get the function from the sesFunctions and try to find a match with the entry
+                sesfunlcopy = [d[:] for d in sesfunl]  # make a copy of the list and the list elements
+                for sesfunvalue in sesfunlcopy:
+                    if sesfunvalue[0] == funname[0]:
+                        # get the vars of the found function match since the parameters in the function definition do not have to match the SES variable names
+                        funvarsfound = re.findall('def\s+' + re.escape(funname[0]) + '\(.*\)', sesfunvalue[1])
+                        funvarsfound[0] = funvarsfound[0].replace("def", "")
+                        funvarsfound[0] = funvarsfound[0].replace(funname[0] + "(", "")
+                        funvarsfound[0] = funvarsfound[0].replace(")", "")
+                        funvarsfound[0] = funvarsfound[0].strip()
+                        vars2 = funvarsfound[0].split(",")
+                        if vars2[0] == '':
+                            del vars2[0]
+                        # remove existing default values
+                        for i in range(len(vars2)):
+                            if i < len(vars):
+                                vars2[i] = vars2[i].split("=")[0]
+                        # make variables to default variables by position
+                        for i in range(len(vars2)):
+                            if i < len(vars):
+                                if varvalues[i] != "":
+                                    if isinstance(varvalues[i], str):
+                                        vars2[i] = vars2[i] + " = '" + varvalues[i] + "'"
+                                    else:
+                                        vars2[i] = vars2[i] + " = " + str(varvalues[i])
+                                else:
+                                    funVarFound = False
+
+                        # build a string from the variables to pass
+                        for i in range(len(vars2)):
+                            vars2[i] = str(vars2[i])
+                        varstring = ', '.join(vars2)
+
+                        # replace parameters in the function with the varstring
+                        sesfunvalue[1] = re.sub('def ' + re.escape(sesfunvalue[0]) + '\(.*\)',
+                                                'def ' + re.escape(sesfunvalue[0]) + '(' + varstring + ')',
+                                                sesfunvalue[1])
+
+                        # try to execute the function
+                        try:
+                            exec(sesfunvalue[1])
+                            self.ret = None
+                            execute = "self.ret = " + sesfunvalue[0] + "()"
+                            if sesfunvalue[0] in locals():
+                                try:
+                                    exec(execute)
+                                    funFound = True
+                                    # replace the entry with the result
+                                    cplvalue = self.ret
+                                except:
+                                    pass
+                        except:
+                            pass
+
+            return cplvalue, funFound
 
         #sub function
         def validateCplgFun(nd, svicp, sesfunl):
@@ -846,86 +929,11 @@ class Coupling:
             funVarFound = True
             retval = []
             cplvalue = []
+
             if nd.coupling:     #if coupling is not empty
                 value = nd.coupling[0][6]
-
-                # check that the expression is an SES function
-                if "(" in value and ")" in value:
-                    funname = value.split("(")
-                    funname[1] = funname[1][0:-1]
-                    vars = funname[1].split(",")
-                    if vars[0] == '':
-                        del vars[0]
-                    for v in range(len(vars)):
-                        vars[v] = vars[v].strip()
-                    # check if the parameters are SES variables and get the values
-                    varvalues = []
-                    for v in vars:
-                        try:
-                            vv = ast.literal_eval(v)
-                            varvalues.append(vv)
-                        except:
-                            # the value is no Python value so it could be the name of an SES variable or function
-                            # check if the expression is an SES variable
-                            try:
-                                ret = eval(v, globals(), svicp.__dict__)
-                                # replace the name with the value
-                                varvalues.append(ret)
-                            except:
-                                varvalues.append("")
-
-                    # now get the function from the sesFunctions and try to find a match with the entry
-                    for sesfunvalue in sesfunl:
-                        if sesfunvalue[0] == funname[0]:
-                            # get the vars of the found function match since the parameters in the function definition do not have to match the SES variable names
-                            funvarsfound = re.findall('def\s+' + re.escape(funname[0]) + '\(.*\)', sesfunvalue[1])
-                            funvarsfound[0] = funvarsfound[0].replace("def", "")
-                            funvarsfound[0] = funvarsfound[0].replace(funname[0] + "(", "")
-                            funvarsfound[0] = funvarsfound[0].replace(")", "")
-                            funvarsfound[0] = funvarsfound[0].strip()
-                            vars2 = funvarsfound[0].split(",")
-                            if vars2[0] == '':
-                                del vars2[0]
-                            # remove existing default values
-                            for i in range(len(vars2)):
-                                if i < len(vars):
-                                    vars2[i] = vars2[i].split("=")[0]
-                            # make variables to default variables by position
-                            for i in range(len(vars2)):
-                                if i < len(vars):
-                                    if varvalues[i] != "":
-                                        if isinstance(varvalues[i], str):
-                                            vars2[i] = vars2[i] + " = '" + varvalues[i] + "'"
-                                        else:
-                                            vars2[i] = vars2[i] + " = " + str(varvalues[i])
-                                    else:
-                                        funVarFound = False
-
-                            # build a string from the variables to pass
-                            for i in range(len(vars2)):
-                                vars2[i] = str(vars2[i])
-                            varstring = ', '.join(vars2)
-
-                            # replace parameters in the function with the varstring
-                            sesfunvalue[1] = re.sub('def ' + re.escape(sesfunvalue[0]) + '\(.*\)',
-                                                    'def ' + re.escape(sesfunvalue[0]) + '(' + varstring + ')',
-                                                    sesfunvalue[1])
-
-                            # try to execute the function
-                            try:
-                                exec(sesfunvalue[1])
-                                self.ret = None
-                                execute = "self.ret = " + sesfunvalue[0] + "()"
-                                if sesfunvalue[0] in locals():
-                                    try:
-                                        exec(execute)
-                                        funFound = True
-                                        # replace the entry with the result
-                                        cplvalue = self.ret
-                                    except:
-                                        pass
-                            except:
-                                pass
+                if value != "":
+                    cplvalue, funFound = execFunction(svicp, sesfunl, value, cplvalue, funFound)
 
             #check that the type is correct: ["sourcenodename", "sourcenodeport", "sinknodename", "sinknodeport", "comment"] and the parent and childrennames are really parents and children
             typeOk = []
@@ -968,7 +976,15 @@ class Coupling:
                                         nr = int(nr)  # if it is not an integer yet
                                         nrok = True
                                     except:
-                                        pass  # seems not be be interpretable as integer
+                                        # seems not be be interpretable as integer for now, but maybe it is a PATH function -> execute
+                                        try:
+                                            nr, ff = execFunction(svicp, sesfunl, nr, "", False)
+                                            nr = int(nr)
+                                            nrok = True
+                                        except:
+                                            # it definitely does not seem to be interpretable as integer
+                                            pass
+
                                 # for the current child create names as during pruning according to number of replications
                                 if nrok:
                                     for number in range(1, nr + 1):
@@ -1029,31 +1045,48 @@ class Coupling:
 
             return funFound, funVarFound, typeOk, parChilOk, allOk, retval
 
-        #here the validate function begins
+        # sub function -> add the special variables (node specific variables) to the sesvars class
+        def addSpecialVars(sesvarsInRulesClass, sesfunl, currentNode=None, paths=None):
+            # find the current node, if it is not passed
+            if currentNode == None:
+                currentIndex = self.treeManipulate.treeSelectionModel.currentIndex()
+                currentNode = self.treeManipulate.treeModel.getNode(currentIndex)
 
-        # own class for SES variables
-        class sesvarsincpl:
-            pass
+            # append PATH underscore variables
+            #if this function is started for pruning, paths is passed
+            if not paths:
+                paths = self.treeManipulate.findPaths()  # get the paths of the tree
+            # get the path with this node
+            path = []
+            i, j, nf = 0, 0, False
+            while i < len(paths) and not nf:
+                j = 0
+                while j < len(paths[i]) and not nf:
+                    if paths[i][j][0].getUid() == currentNode.getUid():
+                        nf = True
+                    j += 1
+                i += 1
+            i -= 1
+            j -= 1
+            k = 0
+            while k <= j:
+                path.append(paths[i][k])
+                k += 1
+            # the variable "path" now holds all nodes from the current node to the root
+            pathUnderscoreVar = {}
+            for pa in path:
+                if pa[0].typeInfo() == "Entity Node":
+                    for at in pa[0].attributes:
+                        if at[0].startswith("_"):
+                            pathUnderscoreVar.update({at[0]: at[1]})
+            # append all _ variables in the path of the current node
+            setattr(sesvarsInRulesClass, "PATH", pathUnderscoreVar)
 
-        # create an instance of the SES variables class
-        svicp = sesvarsincpl
-
-        if sesvarl == "" and sesfunl == "" and nd == None:  # the validate process was started from the editor for coloring the lines
-            #fill the instance of the sesvar class
-            for sesvarvalue in self.treeManipulate.main.modellist[self.treeManipulate.main.activeTab][1].outputSesVarList():
-                try:
-                    sesvarvalue[1] = ast.literal_eval(sesvarvalue[1])  # interprete the type of the value
-                except:
-                    pass  # do nothing, it stays a string
-                setattr(svicp, sesvarvalue[0], sesvarvalue[1])
-
-            #add the special variables (node specific variables)
-            currentIndex = self.treeManipulate.treeSelectionModel.currentIndex()
-            currentNode = self.treeManipulate.treeModel.getNode(currentIndex)
             #append PARENT
             if currentNode.parent():    #if the parent is not node -> is None, when first node at the beginning of the tree is the current node
                 #setattr(svicp, "PARENT", [[currentNode.parent().getUid(), currentNode.parent().name()]])     #only set the parent's name as PARENT now
                 setattr(svicp, "PARENT", currentNode.parent().name())
+
             #append CHILDREN
             childrenlist = currentNode.childrenlist()
             #childrenlistUidNames = []  #only pass names now (see below)
@@ -1078,7 +1111,15 @@ class Coupling:
                             nr = int(nr)  # if it is not an integer yet
                             nrok = True
                         except:
-                            pass  # seems not be be interpretable as integer
+                            # seems not be be interpretable as integer for now, but maybe it is a PATH function -> execute
+                            try:
+                                nr, ff = execFunction(svicp, sesfunl, nr, "", False)
+                                nr = int(nr)
+                                nrok = True
+                            except:
+                                #it definitely does not seem to be interpretable as integer
+                                pass
+
                     # for the current child create names as during pruning according to number of replications
                     if nrok:
                         for number in range(1, nr + 1):
@@ -1087,7 +1128,8 @@ class Coupling:
                             childrenNames.append(newname)
             #setattr(svicp, "CHILDREN", childrenlistUidNames)
             setattr(svicp, "CHILDREN", childrenNames)
-            #append NUMREP
+
+            # append the NUMREP variable
             type = currentNode.typeInfo()
             if type == "Maspect Node":
                 nr = currentNode.number_replication     #number_replication can be an SES variable or function itself -> it has to be interpreted as integer before
@@ -1103,10 +1145,34 @@ class Coupling:
             else:
                 setattr(svicp, "NUMREP", 1)   #aspect nodes -> number of replication is one
 
+        #here the validate function begins
+
+        # own class for SES variables
+        class sesvarsincpl:
+            pass
+
+        # create an instance of the SES variables class
+        svicp = sesvarsincpl
+
+        if sesvarl == "" and sesfunl == "" and nd == None:  # the validate process was started from the editor for coloring the lines
+            #fill the instance of the sesvar class
+            for sesvarvalue in self.treeManipulate.main.modellist[self.treeManipulate.main.activeTab][1].outputSesVarList():
+                try:
+                    sesvarvalue[1] = ast.literal_eval(sesvarvalue[1])  # interprete the type of the value
+                except:
+                    pass  # do nothing, it stays a string
+                setattr(svicp, sesvarvalue[0], sesvarvalue[1])
+
+            currentIndex = self.treeManipulate.treeSelectionModel.currentIndex()
+            currentNode = self.treeManipulate.treeModel.getNode(currentIndex)
+
             #get the SES functions
             sesfunl = self.treeManipulate.main.modellist[self.treeManipulate.main.activeTab][2].outputSesFunList()
 
-            #the current node is already gotten, since needed to insert PARENT, CHILDREN and NUMREP
+            # add special variables to the sesvar class
+            addSpecialVars(svicp, sesfunl, currentNode)  #currentNode is passed here, since it is needed later anyway
+
+            #the current node is already gotten, since needed to insert PARENT, CHILDREN, NUMREP and PATH
 
             #only continue if the current node has couplings
             if currentNode.typeInfo() == "Aspect Node" or currentNode.typeInfo() == "Maspect Node":
@@ -1128,58 +1194,8 @@ class Coupling:
                     pass  # do nothing, it stays a string
                 setattr(svicp, sesvarvalue[0], sesvarvalue[1])
 
-            # add the special variables (node specific variables)
-            # append PARENT
-            #setattr(svicp, "PARENT", [[nd.parent().getUid(), nd.parent().name()]]) #only set the parent's name as PARENT now
-            setattr(svicp, "PARENT", nd.parent().name())
-            #append CHILDREN
-            childrenlist = nd.childrenlist()
-            #childrenlistUidNames = []  #only pass names now (see below)
-            childrenNames = []
-            for child in childrenlist:
-                # if nd is not a Maspect node: add the childrens' names
-                # if nd is a Maspect node: children are created according to the number of replications during pruning and to the name _1, _2 etc. is added
-                #   couplings can refer to the different children created during pruning of the Maspect node, so the names of these children need to be created now (just the name of the child with an appended _1, _2 ...)
-                #   since a coupling function can refer to children of a Maspect node
-                if not nd.typeInfo() == "Maspect Node":
-                    #childrenlistUidNames.append([child.getUid(), child.name()])        #only pass the children's names as CHILDREN now
-                    childrenNames.append(child.name())
-                else:   #create the children's names like during pruning and insert them in childrenNames
-                    nr = nd.number_replication  # number_replication can be an SES variable or function itself -> it has to be interpreted as integer before
-                    nrok = False
-                    try:
-                        nr = int(nr)
-                        nrok = True
-                    except ValueError:  # maybe it is an SES Variable -> get the value
-                        try:
-                            nr = eval(nr, globals(), svicp.__dict__)  # or using getattr(object, name[, default]) -> value
-                            nr = int(nr)  # if it is not an integer yet
-                            nrok = True
-                        except:
-                            pass  # seems not be be interpretable as integer
-                    # for the current child create names as during pruning according to number of replications
-                    if nrok:
-                        for number in range(1, nr + 1):
-                            # rename and append to childrenNames dictionary
-                            newname = child.name() + "_" + str(number)
-                            childrenNames.append(newname)
-            #setattr(svicp, "CHILDREN", childrenlistUidNames)
-            setattr(svicp, "CHILDREN", childrenNames)
-            # append NUMREP
-            type = nd.typeInfo()
-            if type == "Maspect Node":
-                nr = nd.number_replication     #number_replication can be an SES variable or function itself -> it has to be interpreted as integer before
-                try:
-                    nr = int(nr)
-                except ValueError:  #maybe it is an SES Variable -> get the value
-                    try:
-                        nr = eval(nr, globals(), svicp.__dict__)  # or using getattr(object, name[, default]) -> value
-                        nr = int(nr)    #if it is not an integer yet
-                    except:
-                        pass    #seems not be be interpretable as integer
-                setattr(svicp, "NUMREP", nr)
-            else:
-                setattr(svicp, "NUMREP", 1)   #aspect nodes -> number of replication is one
+            # add special variables to the sesvar class
+            addSpecialVars(svicp, sesfunl, nd, paths)
 
             #the SES functions are given in the pass list
 
