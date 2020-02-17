@@ -1,21 +1,30 @@
-def cplfcn(feedforward):
+def cplfcn(feedforward, children):
+	#children[0] is feedforwardCtrl
+	#children[1] is sourceSys
+	#children[2] is feedbackSys
+	#children[3] is ctrlPIDSys
+	#children[4] is procUnitSys
+	#children[5] is sourceDist
+	#children[6] is tfDist
+	#children[7] is addDist
+	
 	cplg = []
 	
 	#fixed couplings
-	cplg.append(["sourceSys","y / SPR","feedbackSys","u1 / SPR",""])
-	cplg.append(["feedbackSys","y / SPR","ctrlPIDSys","u / SPR",""])
-	cplg.append(["procUnitSys","y / SPR","addDist","u2 / SPR",""])
-	cplg.append(["addDist","y / SPR","feedbackSys","u2 / SPR",""])
-	cplg.append(["sourceDist","y / SPR","tfDist","u / SPR",""])
-	cplg.append(["tfDist","y / SPR","addDist","u1 / SPR",""])
+	cplg.append([children[1],"y / SPR",children[2],"u1 / SPR",""])
+	cplg.append([children[2],"y / SPR",children[3],"u / SPR",""])
+	cplg.append([children[4],"y / SPR",children[7],"u2 / SPR",""])
+	cplg.append([children[7],"y / SPR",children[2],"u2 / SPR",""])
+	cplg.append([children[5],"y / SPR",children[6],"u / SPR",""])
+	cplg.append([children[6],"y / SPR",children[7],"u1 / SPR",""])
 	
 	#variable couplings
 	if feedforward==0:
-		cplg.append(["ctrlPIDSys","y / SPR","procUnitSys","u / SPR",""])
+		cplg.append([children[3],"y / SPR",children[4],"u / SPR",""])
 	elif feedforward==1:
-		cplg.append(["sourceDist","y / SPR","feedforwardCtrl","u1 / SPR",""])
-		cplg.append(["ctrlPIDSys","y / SPR","feedforwardCtrl","u2 / SPR",""])
-		cplg.append(["feedforwardCtrl","y / SPR","procUnitSys","u / SPR",""])
+		cplg.append([children[5],"y / SPR",children[0],"u1 / SPR",""])
+		cplg.append([children[3],"y / SPR",children[0],"u2 / SPR",""])
+		cplg.append([children[0],"y / SPR",children[4],"u / SPR",""])
 	
 	#return
 	return cplg
