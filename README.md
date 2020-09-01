@@ -17,6 +17,9 @@ then can be started with the shell command:
 - in Windows: python main.py
 - in Linux: python3 main.py
 
+The program can be executed as standalone application in a Docker container.
+Instructions are in the README file in the Docker directory of this program.
+
 Versions built for Windows or Linux have an executable file with the name
 "SESToPy" in the program directory.
 
@@ -31,6 +34,7 @@ KNOWN BUGS, NOTES, TODO
 - aspectrules + specrules result = ``'' does not appear
 - selections constraints in pruning ignored
 - error in semantic conditions function updateModel -> program crashes from time to time
+- Undo / Redo not implemented
 
 LICENSE
 
