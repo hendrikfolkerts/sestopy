@@ -32,6 +32,7 @@ CHANGELOG
 
 KNOWN BUGS, NOTES, TODO
 - aspectrules + specrules result = ``'' does not appear
+- if a node gets the name of another node, the alternating mode can be violated
 - selections constraints in pruning ignored
 - error in semantic conditions function updateModel -> program crashes from time to time
 - Undo / Redo not implemented
