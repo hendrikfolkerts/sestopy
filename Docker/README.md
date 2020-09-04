@@ -1,6 +1,6 @@
 Docker scripts for Linux shell *.sh and Windows Power Shell *.cmd
 
-SESToPy in Docker can only be used as standalone software for creating and manipulating, and opening or saving SES. It cannot be used as part of the infrastructure with SESEcPy / SESMoPy / SESEuPy. When the SESToPy Docker container is started in the script "Docker_1_Start_Container", a directory "files_for_SESToPy" in the directory above this file is created. SESToPy is installed to "/app" in the Docker container. The directory "files_for_SESToPy" is used for file exchange between the local machine and the Docker container. This directory can be accessed from SESToPy running in the Docker container under "files_from_host" in the root directory of the Docker container.
+SESToPy in Docker can only be used as standalone software for creating and manipulating, and opening or saving SES. It cannot be used as part of the infrastructure with SESEcPy / SESMoPy / SESEuPy.
 
 In case there are errors executing the shellscripts for Linux, see notes below the instructions.
 
@@ -12,7 +12,7 @@ Instructions:
 
 -> "Docker_0_Build_Image" builds an image with the help of the dockerfile, which loads an existing Ubuntu 18.04 image, installs Python3, PyQt5 and nano, and copies the SESToPy files into the /app directory of the image. 
 
--> "Docker_1_Start_Container" starts a container from this image, so SESToPy ist started. Remember that the IP 127.0.0.1 is the localhost of the docker container. When connecting to SESViewEl the IP of the SESViewEl host needs to be entered in SESToPy.
+-> "Docker_1_Start_Container" starts a container from this image, so SESToPy ist started. A directory "files_for_SESToPy" in the directory above this file is created. SESToPy is installed to "/app" in the Docker container. The directory "files_for_SESToPy" is used for file exchange between the local machine and the Docker container. This directory can be accessed from SESToPy running in the Docker container under "files_from_host" in the root directory of the Docker container. Remember that the IP 127.0.0.1 is the localhost of the docker container. When connecting to SESViewEl the IP of the SESViewEl host needs to be entered in SESToPy.
 
 -> "Docker_2_Show_All_Infos": Shows all infos of images, started containers, ports, etc.
 
