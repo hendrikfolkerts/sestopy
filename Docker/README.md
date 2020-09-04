@@ -1,7 +1,6 @@
 Docker scripts for Linux shell *.sh and Windows Power Shell *.cmd
 
-SESToPy in Docker can only be used as standalone software for manipulating SES. It cannot be used as part of the infrastructure with SESEcPy / SESMoPy / SESEuPy. The directory "files_for_SESToPy" in the directory above this file is used for file exchange between the local machine and the Docker container. This directory can be accessed from SESToPy
-running in the Docker container under "files_from_host" in the root directory of the Docker container. SESToPy is installed to "/app" in the Docker container.
+SESToPy in Docker can only be used as standalone software for creating and manipulating, and opening or saving SES. It cannot be used as part of the infrastructure with SESEcPy / SESMoPy / SESEuPy. When the SESToPy Docker container is started in the script "Docker_1_Start_Container", a directory "files_for_SESToPy" in the directory above this file is created. SESToPy is installed to "/app" in the Docker container. The directory "files_for_SESToPy" is used for file exchange between the local machine and the Docker container. This directory can be accessed from SESToPy running in the Docker container under "files_from_host" in the root directory of the Docker container.
 
 In case there are errors executing the shellscripts for Linux, see notes below the instructions.
 
