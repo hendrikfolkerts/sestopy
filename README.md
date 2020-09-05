@@ -12,16 +12,19 @@ The software is written in Python3 with PyQt5 as user interface.
 EXECUTE
 
 The program can be executed from source. Python3 with PyQt5 needs to be
-installed and the Python executable needs to be on the path. The program
-then can be started with the shell command:
+installed and the Python executable needs to be on the path. Open a shell
+and change with the cd command to the SESToPy directory. The program then can
+be started with the shell command:
 - in Windows: python main.py
 - in Linux: python3 main.py
 
-The program can be executed as standalone application in a Docker container.
-Instructions are in the README file in the Docker directory of this program.
-
 Versions built for Windows or Linux have an executable file with the name
 "SESToPy" in the program directory.
+
+Execution in Docker  
+The program can alternatively be executed as standalone application in a Docker
+container. Instructions are in the README file in the Docker directory of this
+program.
 
 CHANGELOG
 - added: couplings, pruning, flattening
