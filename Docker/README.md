@@ -6,7 +6,7 @@ In case there are errors executing the shellscripts for Linux, see notes below t
 
 Instructions:
 
--> Place this folder in the home directory of the current user ( /home/<user> or C:\Users\<user> ) (and do not rename it).
+-> Place this folder in the home directory of the current user ( /home/\<Username> or C:\Users\\\<Username> ) (and do not rename it).
 
 -> Place the SESToPy files ... main.py etc. ... in this folder.
 
