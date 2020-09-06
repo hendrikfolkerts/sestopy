@@ -18,8 +18,11 @@ be started with the shell command:
 - in Windows: python main.py
 - in Linux: python3 main.py
 
-Versions built for Windows or Linux have an executable file with the name
-"SESToPy" in the program directory.
+Build as executable  
+SESToPy can alternatively be built as executable for Windows and Linux. More
+information on this is in the documentation. This is not preferred and not
+tested in new program versions. The created executable file in the program
+directory has the name "SESToPy". 
 
 Execution in Docker  
 The program can alternatively be executed as standalone application in a Docker

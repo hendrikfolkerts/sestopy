@@ -6,7 +6,7 @@ includefiles = ["config.txt", "Documentation/Doc_LaTeX/doc.pdf", "helptext.txt",
                 "iaddsubnode.png", "ianode.png", "iback.png", "ibook.png", "icollapseall.png", "ideletenode.png",
                 "idnode.png", "ieditadd.png", "ieditdelete.png", "ienode.png", "iexpandall.png", "ifileopen.png",
                 "ifilesave.png", "ifilesaveas.png", "iflatten.png", "iforward.png", "ihelp.png", "imanode.png",
-                "inode.png", "inok.png", "iok.png", "iprune.png", "iremove.png", "isnode.png", "README.txt"] # include files
+                "inode.png", "inok.png", "iok.png", "iprune.png", "iremove.png", "isnode.png"] # include files
 includes = []
 excludes = []
 packages = []
