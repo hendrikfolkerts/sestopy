@@ -1486,10 +1486,10 @@ class Main(QtWidgets.QMainWindow):
 
     """about"""
     def about(self):
-        QMessageBox.information(self, "SESToPy: About", "Credits:\n\nResearch Group Computational Engineering and Automation at "
-                                                    "the University of Applied Sciences Wismar, Germany.\n\nThe program was "
-                                                    "created by Hendrik Martin Folkerts with support from Birger Freymann, "
-                                                    "Thorsten Pawletta and Sven Pawletta.", QtWidgets.QMessageBox.Ok)
+        QMessageBox.information(self, "SESToPy: About", "Credits:\n\nResearch Group Computational Engineering and Automation (CEA) "
+                                                    "at the University of Applied Sciences Wismar, Germany.\n\nThe program was "
+                                                    "created by Hendrik Martin Folkerts with support from Thorsten Pawletta, "
+                                                    "Sven Pawletta, and the Research Group CEA.", QtWidgets.QMessageBox.Ok)
 
 #-----execute program---------------------------------------------------------------------------------------------------
 
