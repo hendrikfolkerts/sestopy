@@ -1476,8 +1476,10 @@ class Main(QtWidgets.QMainWindow):
         msgBox.setWindowTitle("SESToPy: Info")
         msgBox.setWindowIcon(self.helpIcon)
         msgBox.setTextFormat(Qt.RichText)
-        msgBox.setText("If using this program please help publicize it by refering it in your papers.")
-        msgBox.setInformativeText("Further information on this website: <a href='https://www.cea-wismar.de'>HS Wismar, RG CEA</a>")
+        msgBox.setText("If you use this program, please help with the publication by referencing it in your papers.")
+        msgBox.setInformativeText("Further information is available in the documentation and on this website: "
+									"<a href='https://www.cea-wismar.de'>Research Group Computational Engineering and Automation, "
+									"University of Applied Sciences Wismar, Germany</a>")
         #msgBox.setDetailedText("The details are as follows:")
         #msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         msgBox.exec()
