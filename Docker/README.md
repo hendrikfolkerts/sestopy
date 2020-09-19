@@ -26,7 +26,7 @@ Instructions:
 
 -> "Docker_7_Load_Image" loads the saved image back.
 
--> "Docker_8_Remove_all_Containers_and_Images" removes all containers and images from a Docker registry on the computer.
+-> "Docker_8_Remove_All_Containers_and_Images" removes all containers and images from a Docker registry on the computer.
 
 Notes for Linux shellscripts:
 
