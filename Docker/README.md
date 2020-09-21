@@ -1,6 +1,6 @@
 Docker scripts for Linux shell *.sh and Windows Power Shell *.cmd
 
-SESToPy in Docker can only be used as standalone software for creating and manipulating, and opening or saving SES. It cannot be used as part of the infrastructure with SESEcPy / SESMoPy / SESEuPy.
+SESToPy in Docker can only be used as standalone software for creating, manipulating, and opening or saving SES. It cannot be used as part of the infrastructure with SESEcPy / SESMoPy / SESEuPy.
 
 In case there are errors executing the shellscripts for Linux, see notes below the instructions.
 
