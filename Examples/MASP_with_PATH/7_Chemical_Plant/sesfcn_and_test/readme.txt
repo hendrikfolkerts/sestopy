@@ -1,0 +1,1 @@
+Test SES functions with debugger e.g. in PyCharm -> main.py
